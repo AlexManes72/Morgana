@@ -1,0 +1,16 @@
+{
+  "name": "Morgana — Oracolo dei Tarocchi",
+  "short_name": "Morgana",
+  "description": "Oracolo dei Tarocchi con lettura AI, oroscopo personalizzato e match partner",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#160838",
+  "theme_color": "#160838",
+  "orientation": "portrait",
+  "lang": "it",
+  "categories": ["lifestyle", "entertainment"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable any" }
+  ]
+}

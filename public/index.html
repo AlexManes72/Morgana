@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Morgana — Oracolo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--gold:#D4A843;--gold2:#E8C87A;--vio2:#7B3FA0;--vio3:#B89FD8;--bone:#F0E6D3;--bone2:#C4AEE0}
+/* GLOBAL: contenimento stretto dentro .ph */
+.ph{overflow:hidden!important}
+.ph .mo,.ph .ai-chat-overlay{width:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow-x:hidden!important}
+.mc2{width:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow-x:hidden!important}
+.mc2 *{max-width:100%;box-sizing:border-box}
+.ai-chat-overlay *{max-width:100%;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#06020F}
+body{font-family:"Cormorant Garamond",serif}
+
+/* ── SFONDO COSMICO (draghi, strega, stelle, castello) ── */
+.bg{position:fixed;inset:0;z-index:0;background:#0A0320}
+
+/* Canvas per draghi animati */
+
+
+/* Stelle scintillanti */
+.ph-stars{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.st{position:absolute;border-radius:50%;animation:tw var(--d) var(--dl) ease-in-out infinite alternate}
+@keyframes tw{0%{opacity:.08;transform:scale(.6)}100%{opacity:1;transform:scale(1.3)}}
+.sp{position:absolute}
+.sp::before{content:"\2736";color:var(--gold2);font-size:var(--sz);position:absolute;animation:spk var(--d) var(--dl) ease-in-out infinite}
+@keyframes spk{0%,100%{opacity:0;transform:scale(0) rotate(0deg)}50%{opacity:.8;transform:scale(1) rotate(180deg)}}
+
+/* Strisce glow laterali */
+.gl{display:none}
+
+/* ── APP: FULL SCREEN, sfondo trasparente ── */
+.po{position:fixed;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;padding:16px 0;background:#0A0320}
+.ph{
+  width:min(390px,100vw);
+  height:min(844px,100vh);
+  /* sfondo violaceo uniforme — più chiaro in alto per vedere il titolo */
+  background:
+    radial-gradient(ellipse at 50% 0%,   rgba(180,100,255,.6)  0%, transparent 45%),
+    radial-gradient(ellipse at 20% 15%,  rgba(140,70,230,.5)   0%, transparent 40%),
+    radial-gradient(ellipse at 80% 10%,  rgba(120,50,220,.5)   0%, transparent 38%),
+    radial-gradient(ellipse at 50% 50%,  rgba(80,20,180,.4)    0%, transparent 55%),
+    radial-gradient(ellipse at 10% 85%,  rgba(130,50,230,.4)   0%, transparent 38%),
+    radial-gradient(ellipse at 90% 80%,  rgba(100,30,200,.4)   0%, transparent 38%),
+    linear-gradient(170deg,#1A0A40 0%,#160838 25%,#1E0A4A 55%,#120630 80%,#0A0320 100%);
+  border-radius:40px;
+  border:2px solid rgba(180,120,255,.4);
+  box-shadow:
+    0 0 0 1px rgba(150,80,255,.15),
+    0 0 50px rgba(120,50,220,.4),
+    0 0 100px rgba(100,30,200,.2),
+    0 25px 70px rgba(0,0,0,.7);
+  overflow:hidden;
+  position:relative;
+  display:flex;flex-direction:column;
+}
+/* sfondo violaceo dentro il frame */
+.ph-bg{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(160,80,255,.5)  0%, transparent 42%),
+    radial-gradient(ellipse at 80% 8%,  rgba(120,40,220,.45) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 50%, rgba(80,20,180,.35)  0%, transparent 55%),
+    radial-gradient(ellipse at 10% 85%, rgba(140,60,240,.35) 0%, transparent 38%),
+    radial-gradient(ellipse at 90% 80%, rgba(100,30,200,.35) 0%, transparent 38%);
+}
+.nb{display:none}
+.nt{font-size:14px;color:#fff;font-family:sans-serif;font-weight:600}
+.ni{font-size:12px;color:#fff;font-family:sans-serif}
+.sc{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative;z-index:2}
+.sa{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;background:transparent;position:relative;z-index:2}
+.sa::-webkit-scrollbar{display:none}
+/* Phases trasparenti — si vede lo sfondo con draghi */
+.phs{display:none;padding:13px 14px 26px}
+.phs.active{display:block;animation:fi .3s ease}
+.hdr{
+  background:transparent;
+  border-bottom:1px solid rgba(212,168,67,.2);
+  padding:18px 14px 10px;
+  text-align:center;
+  position:sticky;top:0;z-index:20;flex-shrink:0;
+}
+.htl{
+  font-family:"Cinzel Decorative",serif;
+  font-size:26px;font-weight:700;
+  color:var(--gold2);letter-spacing:3px;
+  text-shadow:0 0 25px rgba(212,168,67,.7),0 0 50px rgba(212,168,67,.3);
+}
+.hsu{
+  font-size:11px;color:var(--vio3);
+  letter-spacing:4px;text-transform:uppercase;
+  margin-top:3px;font-style:italic;
+}
+.rb{display:flex;align-items:center;gap:6px;max-width:190px;margin:7px auto 0}
+.rl{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,67,.45),transparent)}
+.rs{color:var(--gold);font-size:12px}
+.pg{display:flex;gap:6px;justify-content:center;padding:7px 0 0}
+.pp{flex:1;max-width:58px;height:2.5px;background:rgba(212,168,67,.15);border-radius:2px;transition:all .4s}
+.pp.on{background:var(--gold2);box-shadow:0 0 8px rgba(212,168,67,.6)}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.slbl{font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:12px}
+.btn{width:100%;padding:15px;font-family:"Cinzel Decorative",serif;font-size:12.5px;letter-spacing:1.5px;color:#06031A;background:linear-gradient(135deg,#F0D080,#D4A843 50%,#C89038);border:none;border-radius:13px;cursor:pointer;text-transform:uppercase;font-weight:700;box-shadow:0 4px 22px rgba(212,168,67,.42);transition:all .16s}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.22;cursor:not-allowed;transform:none;box-shadow:none}
+.bk{display:inline-flex;align-items:center;gap:5px;font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:2px;color:var(--gold);background:none;border:none;cursor:pointer;margin-bottom:12px;padding:4px 0;text-transform:uppercase;opacity:.75}
+/* HOME */
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.db{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:16px 8px;border:none;border-radius:16px;cursor:pointer;transition:all .2s;min-height:92px}
+.db.adv{background:rgba(212,168,67,.1);border:1.5px solid rgba(212,168,67,.38);box-shadow:0 0 20px rgba(212,168,67,.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.db.hor{background:rgba(120,60,200,.1);border:1.5px solid rgba(160,100,240,.38);box-shadow:0 0 20px rgba(140,80,220,.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.db:active{transform:scale(.95)}
+.di{font-size:32px;display:block}
+.dl{font-family:"Cinzel Decorative",serif;font-size:10px;color:var(--gold2);letter-spacing:1px;text-align:center;line-height:1.4}
+.db.hor .dl{color:#C8A0FF}
+.dvd{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.dvl{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,67,.25),transparent)}
+.dvs{font-family:"Cormorant Garamond",serif;font-size:10px;color:rgba(212,168,67,.45);white-space:nowrap;letter-spacing:1px;font-style:italic}
+/* MODE */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}
+.mc{background:rgba(255,255,255,.06);border:1.5px solid rgba(184,159,216,.22);border-radius:15px;padding:17px 10px;text-align:center;cursor:pointer;transition:all .2s;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.mc:active,.mc.sel{background:rgba(212,168,67,.14);border-color:var(--gold2);box-shadow:0 0 20px rgba(212,168,67,.2)}
+.mi{font-size:28px;display:block;margin-bottom:8px}
+.mc h3{font-family:"Cinzel Decorative",serif;font-size:10px;color:var(--gold2);margin-bottom:4px}
+.mc p{font-size:11px;color:var(--bone2);font-style:italic;line-height:1.4}
+/* SPREAD */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px}
+.scd{background:rgba(255,255,255,.06);border:1px solid rgba(184,159,216,.2);border-radius:11px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .17s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.scd:active,.scd.sel{border-color:var(--gold2);background:rgba(212,168,67,.08)}
+.scd h3{font-family:"Cinzel Decorative",serif;font-size:9px;color:var(--gold2);margin-bottom:3px}
+.scd p{font-size:10px;color:var(--bone2);font-style:italic;line-height:1.3}
+.spp{display:flex;gap:3px;justify-content:center;margin-bottom:5px}
+.pip{width:6px;height:10px;background:rgba(155,95,188,.32);border:1px solid rgba(212,168,67,.18);border-radius:1px}
+/* CELTIC INFO */
+.celtic-info{
+  background:rgba(212,168,67,.06);
+  border:1px solid rgba(212,168,67,.2);
+  border-radius:10px;
+  padding:10px 12px;
+  margin-top:8px;
+  display:none;
+}
+.celtic-info.show{display:block}
+.celtic-info-title{
+  font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:1.5px;
+  color:var(--gold2);text-transform:uppercase;margin-bottom:8px;text-align:center;
+}
+.celtic-pos{
+  display:flex;align-items:flex-start;gap:8px;
+  margin-bottom:6px;padding-bottom:6px;
+  border-bottom:1px solid rgba(212,168,67,.1);
+}
+.celtic-pos:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.cpos-num{
+  font-family:"Cinzel Decorative",serif;font-size:11px;
+  color:var(--gold2);min-width:22px;text-align:center;
+  background:rgba(212,168,67,.12);border-radius:50%;
+  width:22px;height:22px;line-height:22px;flex-shrink:0;
+}
+.cpos-text{}
+.cpos-name{font-family:"Cinzel Decorative",serif;font-size:9px;color:var(--gold2);letter-spacing:.5px}
+.cpos-desc{font-size:11px;color:var(--bone2);font-style:italic;line-height:1.4;margin-top:1px}
+/* QUESTION */
+.qb{margin-bottom:13px}
+.qb label{display:block;font-size:11.5px;color:var(--bone2);font-style:italic;margin-bottom:6px;text-align:center}
+.qb textarea{width:100%;min-height:64px;background:rgba(255,255,255,.04);border:1.5px solid rgba(184,159,216,.18);border-radius:11px;padding:11px 13px;font-family:"Cormorant Garamond",serif;font-size:16px;color:var(--bone);resize:none;outline:none;transition:border-color .2s}
+.qb textarea:focus{border-color:var(--gold)}
+.qb textarea::placeholder{color:rgba(196,174,224,.32);font-style:italic}
+
+/* ===== SWIPE DECK: pages of 6 cards ===== */
+.deck-outer{
+  position:relative;
+  overflow:hidden;
+  margin:0 -14px;  /* bleed to edges */
+}
+.deck-pages{
+  display:flex;
+  transition:transform .35s cubic-bezier(.25,.46,.45,.94);
+  will-change:transform;
+}
+.deck-page{
+  flex-shrink:0;
+  width:100vw;
+  max-width:390px;
+  padding:0 10px 4px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(2,1fr);
+  gap:7px;
+}
+.swc{
+  aspect-ratio:.60;
+  border-radius:8px;
+  border:2px solid rgba(212,168,67,.25);
+  overflow:hidden;
+  cursor:pointer;
+  position:relative;
+  transition:border-color .2s,box-shadow .2s,transform .2s;
+  background:rgba(8,4,30,.82);
+}
+.swc img{width:100%;height:100%;object-fit:cover;display:block}
+.swc.pk{
+  border-color:var(--gold2);
+  box-shadow:0 0 20px rgba(212,168,67,.5);
+  transform:scale(1.04);
+}
+.swc.pk::after{
+  content:"\2736";
+  position:absolute;top:4px;right:5px;
+  font-size:14px;color:var(--gold2);
+  text-shadow:0 0 6px rgba(212,168,67,.8);
+  z-index:5;pointer-events:none;
+}
+.swc .card-back-img{width:100%;height:100%;object-fit:cover;display:block}
+.swc .card-front-img{width:100%;height:100%;object-fit:cover}
+.swc.revealed{animation:cardflip .5s ease forwards}
+@keyframes cardflip{
+  0%{transform:rotateY(0deg) scale(1.04)}
+  40%{transform:rotateY(90deg) scale(1.06)}
+  100%{transform:rotateY(0deg) scale(1.04)}
+}
+/* Selected but not yet revealed */
+.swc.pk:not(.revealed){
+  border-color:var(--gold2);
+  box-shadow:0 0 20px rgba(212,168,67,.5);
+  transform:scale(1.04);
+}
+.swc.pk.revealed{
+  border-color:#90E890;
+  box-shadow:0 0 20px rgba(144,232,144,.4);
+}
+.swc .cnm{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(0,0,0,.72);padding:3px 3px 4px;
+  font-family:"Cormorant Garamond",serif;font-size:7.5px;color:rgba(240,230,211,.85);
+  text-align:center;line-height:1.2;
+}
+/* Nav arrows + page dots */
+.deck-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:6px;padding:6px 0 4px;margin-bottom:8px;
+}
+.deck-arrow{
+  background:rgba(212,168,67,.12);border:1px solid rgba(212,168,67,.25);
+  border-radius:8px;padding:5px 12px;cursor:pointer;
+  font-size:16px;color:var(--gold2);transition:all .18s;
+  font-family:sans-serif;
+}
+.deck-arrow:active{background:rgba(212,168,67,.22)}
+.deck-arrow:disabled{opacity:.25;cursor:not-allowed}
+.deck-pager{
+  font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:2px;
+  color:var(--gold);text-align:center;flex:1;
+}
+/* pick status */
+.dst{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.pct{font-family:"Cinzel Decorative",serif;font-size:10px;letter-spacing:2px;color:var(--gold)}
+/* drawn cards */
+.dr{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:13px}
+.dc{width:78px;border:1.5px solid rgba(212,168,67,.38);border-radius:8px;overflow:hidden;background:rgba(6,3,14,.78);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+.da{width:100%;height:106px;overflow:hidden}
+.da img{width:100%;height:100%;object-fit:cover;display:block}
+.da.rv img{transform:rotate(180deg)}
+.dp{font-family:"Cinzel Decorative",serif;font-size:6px;letter-spacing:.8px;color:rgba(212,168,67,.52);text-transform:uppercase;text-align:center;padding:4px 2px 1px}
+.dn{font-family:"Cormorant Garamond",serif;font-size:9px;color:var(--bone);text-align:center;padding:0 2px 3px;line-height:1.2}
+.dv{font-size:8px;color:#C070C0;text-align:center;padding-bottom:3px;font-style:italic}
+/* boxes */
+.ib{border:2px solid rgba(212,168,67,.25);border-top:2.5px solid var(--gold2);border-radius:0 0 13px 13px;padding:16px 13px;background:rgba(4,1,14,.55);position:relative;margin-bottom:13px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.il{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:"Cinzel Decorative",serif;font-size:7.5px;letter-spacing:2px;color:var(--gold2);background:#0D0535;padding:0 11px;white-space:nowrap}
+.ib p,.jb p{font-size:14.5px;line-height:1.9;font-style:italic;font-weight:300}
+.ib p{color:var(--bone)}
+.jb{border:2px solid rgba(155,95,188,.28);border-top:2.5px solid var(--vio2);border-radius:0 0 13px 13px;padding:15px 13px;background:rgba(40,12,90,.18);position:relative;margin-bottom:13px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.jl{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:"Cinzel Decorative",serif;font-size:7.5px;letter-spacing:2px;color:var(--bone2);background:#0D0535;padding:0 11px;white-space:nowrap}
+.jb p{color:#D4C0F0}
+.str{display:flex;gap:5px;justify-content:center;margin-bottom:9px}
+.star{font-size:20px;color:rgba(212,168,67,.15);transition:all .45s}
+.star.lit{color:var(--gold2);text-shadow:0 0 12px rgba(212,168,67,.55)}
+/* chat */
+.cb2{border:2px solid rgba(100,60,180,.3);border-top:2.5px solid rgba(140,80,220,.7);border-radius:0 0 13px 13px;padding:14px 13px 13px;background:rgba(10,4,30,.35);position:relative;margin-bottom:13px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.cl{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:"Cinzel Decorative",serif;font-size:7.5px;letter-spacing:2px;color:rgba(180,140,255,.8);background:#0D0535;padding:0 11px;white-space:nowrap}
+.cm{min-height:60px;max-height:240px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:10px}
+.cm::-webkit-scrollbar{display:none}
+.msg{padding:9px 12px;border-radius:10px;font-size:14px;line-height:1.7}
+.msg.u{background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);color:var(--bone);align-self:flex-end;border-radius:10px 10px 2px 10px;max-width:88%;font-style:normal}
+.msg.o{background:rgba(100,50,180,.12);border:1px solid rgba(140,80,220,.2);color:#D4C0F0;align-self:flex-start;border-radius:10px 10px 10px 2px;max-width:92%;font-style:italic}
+.cir{display:flex;gap:8px;align-items:flex-end}
+.cin{flex:1;padding:10px 12px;font-family:"Cormorant Garamond",serif;font-size:15px;background:rgba(255,255,255,.04);border:1.5px solid rgba(140,80,220,.25);border-radius:10px;color:var(--bone);outline:none;resize:none;min-height:42px;max-height:90px;transition:border-color .2s}
+.cin:focus{border-color:rgba(180,120,255,.5)}
+.cin::placeholder{color:rgba(196,174,224,.32);font-style:italic}
+.csb{width:42px;height:42px;background:linear-gradient(135deg,#9B5FBC,#7B3FA0);border:none;border-radius:10px;cursor:pointer;font-size:18px;color:#fff;flex-shrink:0;transition:all .15s;box-shadow:0 2px 10px rgba(123,63,160,.4)}
+.csb:active{transform:scale(.93)}
+.csb:disabled{opacity:.3;cursor:not-allowed}
+/* camera recognition */
+.cam-section{background:rgba(155,95,188,.07);border:1px solid rgba(155,95,188,.25);border-radius:12px;padding:12px;margin-bottom:13px}
+.cam-title{font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:2px;color:var(--vio3);text-transform:uppercase;margin-bottom:5px}
+.cam-hint{font-size:11px;color:var(--bone2);font-style:italic;margin-bottom:10px}
+.cam-pos-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.cam-pos-btn{background:rgba(255,255,255,.04);border:1px solid rgba(155,95,188,.25);border-radius:7px;padding:5px 10px;font-family:"Cinzel Decorative",serif;font-size:8px;color:var(--vio3);cursor:pointer;transition:all .15s;letter-spacing:.5px}
+.cam-pos-btn:active,.cam-pos-btn.active{background:rgba(155,95,188,.2);border-color:var(--vio3)}
+.cam-btn-wrap{display:block;width:100%;margin-bottom:10px}
+.cam-btn{display:block;width:100%;padding:11px;background:rgba(155,95,188,.15);border:1.5px solid rgba(155,95,188,.4);border-radius:10px;font-family:"Cinzel Decorative",serif;font-size:11px;letter-spacing:1.5px;color:var(--vio3);text-align:center;cursor:pointer;text-transform:uppercase;transition:all .18s}
+.cam-btn:active{background:rgba(155,95,188,.28)}
+.cam-preview{text-align:center;padding-top:8px}
+.cam-result{font-family:"Cormorant Garamond",serif;font-size:14px;color:var(--bone);font-style:italic;line-height:1.7;margin-top:8px;text-align:center}padding:9px 12px;background:rgba(212,168,67,.04);border-radius:0 9px 9px 0;margin-bottom:13px}
+.rg strong{font-family:"Cinzel Decorative",serif;font-size:8px;letter-spacing:2px;color:var(--gold);display:block;margin-bottom:4px;text-transform:uppercase}
+.rg p{font-size:13px;color:var(--bone2);line-height:1.55;font-style:italic}
+.mw{margin-bottom:13px}
+.mw label{font-size:8px;letter-spacing:2px;color:var(--gold);font-family:"Cinzel Decorative",serif;text-transform:uppercase;display:block;margin-bottom:4px}
+.mw input{width:100%;padding:11px 12px;font-family:"Cormorant Garamond",serif;font-size:15px;background:rgba(255,255,255,.04);border:1.5px solid rgba(184,159,216,.18);border-radius:9px;color:var(--bone);outline:none;margin-bottom:9px;transition:border-color .2s}
+.mw input:focus{border-color:var(--gold)}
+/* modal — strictly inside .ph */
+.mo{position:absolute;inset:0;z-index:50;background:rgba(4,2,20,.92);display:none;align-items:flex-end;justify-content:center;overflow:hidden}
+.mo.open{display:flex;animation:su .32s cubic-bezier(.16,1,.3,1)}
+@keyframes su{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:translateY(0)}}
+.mc2{
+  width:100%;
+  height:82%;
+  max-height:82%;
+  background:linear-gradient(170deg,rgba(18,8,64,.82),rgba(10,5,48,.78) 60%,rgba(22,11,80,.82));backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1.5px solid rgba(212,168,67,.25);
+  border-top:2px solid rgba(212,168,67,.45);
+  border-radius:20px 20px 0 0;
+  padding:18px 15px 24px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  position:relative;
+  box-shadow:0 -10px 40px rgba(100,40,200,.35);
+  flex-shrink:0;
+}
+.mc2::-webkit-scrollbar{display:none}
+.mcx{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:30px;height:30px;color:rgba(240,230,211,.6);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5}
+.mci{font-size:38px;text-align:center;margin-bottom:8px}
+.mct{font-family:"Cinzel Decorative",serif;font-size:13px;letter-spacing:2px;color:var(--gold2);text-align:center;margin-bottom:14px;text-shadow:0 0 12px rgba(212,168,67,.4)}
+.mcd{font-family:"Cormorant Garamond",serif;font-size:15px;color:var(--bone);line-height:1.85;font-style:italic;font-weight:300;text-align:center;min-height:50px;margin-bottom:4px}
+.mcr{display:block;margin:14px auto 0;background:none;border:1px solid rgba(212,168,67,.25);border-radius:8px;padding:7px 18px;font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:2px;color:rgba(212,168,67,.6);cursor:pointer;text-transform:uppercase}
+.mcr:active{background:rgba(212,168,67,.08)}
+/* menu grid */
+.mv-grid{display:flex;flex-direction:column;gap:9px;margin-bottom:12px}
+.mv-btn{background:rgba(255,255,255,.07);border:1.5px solid rgba(212,168,67,.22);border-radius:14px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:row;align-items:center;gap:14px;transition:all .18s;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);width:100%;text-align:left}
+.mv-btn:active{background:rgba(212,168,67,.1);border-color:var(--gold2)}
+.mv-hor{border-color:rgba(160,100,240,.25)}
+.mv-hor:active{background:rgba(140,80,220,.1);border-color:rgba(180,120,255,.5)}
+.mv-par{border-color:rgba(200,50,100,.3)}
+.mv-par:active{background:rgba(180,30,80,.1);border-color:rgba(220,80,120,.5)}
+.mv-asc{border-color:rgba(80,160,220,.25)}
+.mv-asc:active{background:rgba(60,140,200,.1);border-color:rgba(100,180,240,.5)}
+.mv-ic{font-size:24px;flex-shrink:0}
+.mv-lbl{font-family:"Cinzel Decorative",serif;font-size:10px;color:var(--gold2);text-align:left;line-height:1.4;letter-spacing:.5px}
+.mv-hor .mv-lbl{color:#C8A0FF;text-align:left}
+.mv-par .mv-lbl{color:#FF8FAF;text-align:left}
+.mv-asc .mv-lbl{color:#80CCFF;text-align:left}
+.mv-settings{display:block;width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(212,168,67,.15);border-radius:10px;padding:10px;font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:1.5px;color:rgba(212,168,67,.55);cursor:pointer;text-transform:uppercase;text-align:center}
+.mv-back{background:none;border:none;color:var(--gold);font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;margin-bottom:12px;padding:3px 0;display:block;opacity:.75}
+/* profile badge */
+.profile-badge{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;background:rgba(212,168,67,.07);border:1px solid rgba(212,168,67,.2);border-radius:10px;padding:8px 12px}
+.profile-badge .pb-sym{font-size:24px}
+.profile-badge .pb-name{font-family:"Cinzel Decorative",serif;font-size:11px;color:var(--gold2)}
+/* match */
+.match-badges{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px}
+.match-badge{background:rgba(255,255,255,.05);border:1.5px solid rgba(212,168,67,.2);border-radius:10px;padding:8px 12px;text-align:center}
+.match-badge .mb-sym{font-size:22px;display:block;margin-bottom:3px}
+.match-badge .mb-name{font-family:"Cinzel Decorative",serif;font-size:8.5px;color:var(--gold2)}
+.match-heart{font-size:22px;color:#FF6688}
+.match-bar-wrap{margin-bottom:12px}
+.match-bar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.match-fill{height:100%;background:linear-gradient(90deg,#FF6688,#FFB840);border-radius:4px;transition:width 1s ease;width:0}
+.match-pct{text-align:center;font-family:"Cinzel Decorative",serif;font-size:13px;color:var(--gold2);letter-spacing:1px}
+/* forms */
+.form-lbl{display:block;font-family:"Cinzel Decorative",serif;font-size:8px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
+.form-inp{width:100%;padding:10px 12px;font-family:"Cormorant Garamond",serif;font-size:15px;background:rgba(255,255,255,.08);border:1.5px solid rgba(184,159,216,.18);border-radius:9px;color:var(--bone);outline:none;margin-bottom:4px;transition:border-color .2s}
+.form-inp:focus{border-color:var(--gold)}
+.form-inp::placeholder{color:rgba(196,174,224,.3);font-style:italic}
+.asc-form{margin-bottom:8px}
+/* zodiac grid */
+.zg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:8px}
+.zb{background:rgba(255,255,255,.04);border:1px solid rgba(160,100,240,.2);border-radius:10px;padding:8px 4px;cursor:pointer;text-align:center;transition:all .18s}
+.zb:active,.zb.sel{background:rgba(140,80,220,.15);border-color:rgba(180,120,255,.5)}
+.zs{display:block;font-size:20px;margin-bottom:2px}
+.zn{display:block;font-family:"Cinzel Decorative",serif;font-size:7px;color:rgba(196,160,255,.8);letter-spacing:.5px}
+.db.db-match{background:rgba(200,50,100,.1);border:1.5px solid rgba(220,80,120,.38);box-shadow:0 0 18px rgba(200,50,100,.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.db.db-match .dl{color:#FF8FAF}
+.db.db-match .di{filter:drop-shadow(0 0 6px rgba(255,100,150,.5))}
+.db.db-ai{background:rgba(50,180,200,.08);border:1.5px solid rgba(80,200,220,.32);box-shadow:0 0 18px rgba(50,180,200,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.db.db-ai .dl{color:#80EEFF}
+.db.db-ai .di{filter:drop-shadow(0 0 6px rgba(80,220,255,.5))}
+/* Extraction accordion */
+.extraction-box{margin-bottom:10px}
+.ext-item{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(212,168,67,.15);
+  border-radius:10px;margin-bottom:6px;
+  overflow:hidden;cursor:pointer;
+  transition:border-color .2s;
+}
+.ext-item:active{border-color:rgba(212,168,67,.35)}
+.ext-header{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;
+}
+.ext-num{
+  font-family:"Cinzel Decorative",serif;font-size:11px;
+  color:var(--gold2);min-width:20px;text-align:center;
+  background:rgba(212,168,67,.12);border-radius:50%;
+  width:22px;height:22px;line-height:22px;flex-shrink:0;
+}
+.ext-title{
+  font-family:"Cinzel Decorative",serif;font-size:9.5px;
+  color:var(--gold2);letter-spacing:.5px;flex:1;
+}
+.ext-arrow{color:rgba(212,168,67,.5);font-size:12px;transition:transform .25s}
+.ext-item.open .ext-arrow{transform:rotate(180deg)}
+.ext-body{
+  display:none;
+  font-size:13px;color:var(--bone2);
+  line-height:1.65;font-style:italic;
+  padding:0 12px 12px 44px;
+}
+.ext-item.open .ext-body{display:block}
+.ext-body strong{color:var(--gold2);font-style:normal;font-size:12px}
+/* AI Chat standalone */
+.ai-chat-overlay{
+  position:absolute;inset:0;z-index:48;
+  background:rgba(4,2,20,.92);
+  display:none;flex-direction:column;
+  backdrop-filter:blur(8px);
+}
+.ai-chat-overlay.open{display:flex;width:100%;max-width:100%}
+.ai-chat-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 14px 10px;
+  border-bottom:1px solid rgba(212,168,67,.2);
+  flex-shrink:0;
+}
+.ai-chat-title{font-family:"Cinzel Decorative",serif;font-size:13px;color:var(--gold2);letter-spacing:1.5px}
+.ai-chat-close{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:30px;height:30px;color:rgba(240,230,211,.6);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ai-chat-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.ai-chat-msgs::-webkit-scrollbar{display:none}
+.ai-chat-input-row{display:flex;gap:8px;padding:10px 14px 16px;flex-shrink:0;border-top:1px solid rgba(212,168,67,.15)}
+.ai-chat-input{flex:1;padding:10px 12px;font-family:"Cormorant Garamond",serif;font-size:15px;background:rgba(255,255,255,.06);border:1.5px solid rgba(140,80,220,.25);border-radius:10px;color:var(--bone);outline:none;resize:none;min-height:42px;max-height:100px}
+.ai-chat-input:focus{border-color:rgba(180,120,255,.5)}
+.ai-chat-input::placeholder{color:rgba(196,174,224,.35);font-style:italic}
+.ai-chat-send{width:42px;height:42px;background:linear-gradient(135deg,#9B5FBC,#7B3FA0);border:none;border-radius:10px;cursor:pointer;font-size:18px;color:#fff;flex-shrink:0;transition:all .15s;box-shadow:0 2px 10px rgba(123,63,160,.4)}
+.ai-chat-send:active{transform:scale(.93)}
+.ai-chat-send:disabled{opacity:.3;cursor:not-allowed}
+.ai-intro{text-align:center;padding:20px 10px;font-size:14px;color:var(--bone2);font-style:italic;line-height:1.7}
+/* Mazzo type selector */
+.mazzo-select-row{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.mazzo-select-lbl{font-family:"Cinzel Decorative",serif;font-size:8px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;white-space:nowrap}
+.mazzo-sel-btn{background:rgba(255,255,255,.05);border:1px solid rgba(212,168,67,.2);border-radius:8px;padding:5px 10px;font-family:"Cinzel Decorative",serif;font-size:8.5px;color:rgba(212,168,67,.55);cursor:pointer;transition:all .18s;white-space:nowrap}
+.mazzo-sel-btn.sel{background:rgba(212,168,67,.14);border-color:var(--gold2);color:var(--gold2)}
+.mazzo-sel-btn:active{transform:scale(.95)}
+.sug-btn{width:100%;display:flex;align-items:center;gap:10px;background:rgba(212,168,67,.07);border:1px solid rgba(212,168,67,.22);border-radius:12px;padding:12px 14px;cursor:pointer;margin-bottom:10px;transition:all .2s}
+.sug-btn:active{background:rgba(212,168,67,.14);border-color:var(--gold)}
+.sug-ic{font-size:20px}
+.sug-txt{flex:1;font-family:"Cinzel Decorative",serif;font-size:10px;color:var(--gold2);letter-spacing:.5px;text-align:left}
+.sug-arr{color:rgba(212,168,67,.5);font-size:14px}
+.sug-section-title{font-family:"Cinzel Decorative",serif;font-size:8px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;text-align:center;margin:10px 0 7px}
+/* Avanza top-right */
+.avanza-top{background:none;border:none;border-bottom:1px solid rgba(212,168,67,.35);border-radius:0;padding:3px 6px;font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:1px;color:rgba(212,168,67,.5);cursor:pointer;text-transform:uppercase;transition:all .2s}
+.avanza-top:disabled{opacity:.2;cursor:not-allowed}
+.avanza-top:not(:disabled){color:var(--gold2);border-bottom-color:var(--gold)}
+/* Shuffle button */
+.shuffle-btn{background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.28);border-radius:8px;padding:5px 10px;font-family:"Cinzel Decorative",serif;font-size:9px;letter-spacing:1px;color:var(--gold2);cursor:pointer;transition:all .18s}
+.shuffle-btn:active{background:rgba(212,168,67,.25);transform:scale(.95)}
+.dots span{display:inline-block;width:5px;height:5px;background:var(--gold2);border-radius:50%;margin:0 2px;animation:bl 1.4s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:.25s}
+.dots span:nth-child(3){animation-delay:.5s}
+@keyframes bl{0%,60%,100%{opacity:.18;transform:scale(.62)}30%{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="gl l"></div><div class="gl r"></div>
+<div class="po">
+<div class="ph">
+  <!-- SFONDO STELLE DENTRO IL TELEFONO -->
+  <div class="ph-bg"></div>
+  <div class="ph-stars" id="sfx"></div>
+  <div class="sc">
+    <div class="hdr">
+      <div class="htl">Morgana</div>
+      <div class="hsu">Oracolo dei Tarocchi</div>
+      <div class="rb"><div class="rl"></div><div class="rs">&#x263D;</div><div class="rl"></div><div class="rs">&#x2736;</div><div class="rl"></div><div class="rs">&#x263E;</div><div class="rl"></div></div>
+      <div class="pg"><div class="pp on" id="p1"></div><div class="pp" id="p2"></div><div class="pp" id="p3"></div><div class="pp" id="p4"></div></div>
+    </div>
+    <div class="sa" id="sa">
+
+      <!-- HOME -->
+      <div class="phs active" id="ph1">
+        <div style="display:flex;justify-content:flex-end;padding:4px 0 2px"><button class="avanza-top" id="b1top" onclick="goTo(2)" disabled>Avanza &#x276F;</button></div>
+
+        <!-- RIGA 1: Mazzi -->
+        <div class="slbl">Scegli il mazzo</div>
+        <div class="mg">
+          <div class="mc" id="mD" onclick="pickMode('d')"><span class="mi">&#x1F52E;</span><h3>Mazzo Digitale</h3><p>78 carte Rider-Waite con lettura AI</p></div>
+          <div class="mc" id="mR" onclick="pickMode('r')"><span class="mi">&#x1F0CF;</span><h3>Mazzo Fisico</h3><p>Il tuo mazzo reale, inserisci le carte</p></div>
+        </div>
+
+        <!-- RIGA 2: Consiglio + Spazio Astrale -->
+        <div class="dvd"><div class="dvl"></div><span class="dvs">&#x2736; Servizi Giornalieri &#x2736;</span><div class="dvl"></div></div>
+        <div class="dg">
+          <button class="db adv" onclick="openDaily('advice')"><span class="di">&#x2728;</span><span class="dl">Consiglio<br>del Giorno</span></button>
+          <button class="db hor" onclick="openModal()"><span class="di">&#x1FA90;</span><span class="dl">Spazio<br>Astrale</span></button>
+        </div>
+
+        <!-- RIGA 3: Match Partner + Oracolo AI -->
+        <div class="dg" style="margin-top:-4px">
+          <button class="db db-match" onclick="openModal();setTimeout(function(){openView('partner')},100)"><span class="di" style="color:#FF4466;filter:drop-shadow(0 0 8px rgba(255,50,100,.6))">&#x2764;</span><span class="dl">Match<br>Partner</span></button>
+          <button class="db db-ai" onclick="openAIChat()"><span class="di">&#x1F52E;</span><span class="dl">Parla con<br>Oracolo AI</span></button>
+        </div>
+
+        <!-- RIGA 4: Suggerimenti -->
+        <div class="dvd" style="margin-top:6px"><div class="dvl"></div><span class="dvs">&#x2736; Guida &#x2736;</span><div class="dvl"></div></div>
+        <button class="sug-btn" onclick="openSuggerimenti()">
+          <span class="sug-ic">&#x1F4D6;</span>
+          <span class="sug-txt">Suggerimenti per l'Estrazione e i Mazzi</span>
+          <span class="sug-arr">&#x276F;</span>
+        </button>
+        <button class="btn" id="b1" onclick="goTo(2)" disabled style="margin-top:6px">Avanza &#x2192;</button>
+      </div>
+
+      <!-- SPREAD -->
+      <div class="phs" id="ph2">
+        <button class="bk" onclick="goTo(1)">&#x2190; Indietro</button>
+        <div class="slbl">Tipo di lettura</div>
+        <div class="sg">
+          <div class="scd" onclick="pickSpread('single',this)"><div class="spp"><div class="pip"></div></div><h3>Singola</h3><p>Una carta, un consiglio immediato</p></div>
+          <div class="scd" onclick="pickSpread('sino',this)"><div class="spp"><div class="pip"></div><div class="pip"></div></div><h3>Si / No</h3><p>Due carte per una risposta diretta</p></div>
+          <div class="scd" onclick="pickSpread('ppp',this)"><div class="spp"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><h3>P - P - F</h3><p>Passato, Presente e Futuro</p></div>
+          <div class="scd" onclick="pickSpread('elementi',this)"><div class="spp"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><h3>4 Elementi</h3><p>5 carte &#x2014; 4 direzioni + essenza</p></div>
+          <div class="scd" onclick="pickSpread('ferro',this)"><div class="spp"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip" style="opacity:.5"></div></div><h3>Ferro di Cavallo</h3><p>7 carte &#x2014; passato, presente, esito</p></div>
+          <div class="scd" onclick="pickSpread('celtic',this)"><div class="spp"><div class="pip" style="opacity:.3"></div><div class="pip"></div><div class="pip" style="opacity:.3"></div><div class="pip" style="opacity:.3"></div></div><h3>Croce Celtica</h3><p>10 carte &#x2014; lettura completa</p></div>
+          <div class="scd" onclick="pickSpread('anno',this)"><div class="spp"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><h3>Anno Solare</h3><p>12 carte &#x2014; un mese per carta</p></div>
+          <div class="scd" onclick="pickSpread('rel',this)"><div class="spp"><div class="pip"></div><div class="pip" style="opacity:.4"></div><div class="pip"></div></div><h3>Relazione</h3><p>Tu, la relazione e l'altra persona</p></div>
+          <div class="scd" onclick="pickSpread('mente',this)"><div class="spp"><div class="pip"></div><div class="pip"></div></div><h3>Mente - Cuore</h3><p>Ragione vs emozione</p></div>
+          <div class="scd" onclick="pickSpread('chakra',this)"><div class="spp"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><h3>Chakra</h3><p>7 carte &#x2014; energia e blocchi interiori</p></div>
+        </div>
+
+        <!-- CELTIC CROSS EXPLANATION -->
+        <div class="celtic-info" id="celticInfo">
+          <div class="celtic-info-title">&#x2736; Le 10 posizioni della Croce Celtica &#x2736;</div>
+          <div class="celtic-pos"><div class="cpos-num">1</div><div class="cpos-text"><div class="cpos-name">Situazione Attuale</div><div class="cpos-desc">Il cuore della questione. Descrive la situazione presente e l'energia principale che ti circonda in questo momento.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">2</div><div class="cpos-text"><div class="cpos-name">La Sfida</div><div class="cpos-desc">L'ostacolo o la forza che si oppone. Non sempre negativa: può essere una prova che ti aiuta a crescere.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">3</div><div class="cpos-text"><div class="cpos-name">Il Fondamento</div><div class="cpos-desc">Le radici della situazione. Ciò che sta sotto, le cause profonde o le basi su cui tutto si appoggia.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">4</div><div class="cpos-text"><div class="cpos-name">Il Passato Recente</div><div class="cpos-desc">Ciò che sta passando o sta per concludersi. Energie ed eventi che si stanno allontanando dalla tua vita.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">5</div><div class="cpos-text"><div class="cpos-name">Il Possibile Futuro</div><div class="cpos-desc">Ciò che potrebbe accadere se continui su questa strada. Non definitivo: il futuro si può cambiare.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">6</div><div class="cpos-text"><div class="cpos-name">Il Futuro Immediato</div><div class="cpos-desc">Ciò che si avvicina nelle prossime settimane. Le energie che stanno per entrare nella tua situazione.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">7</div><div class="cpos-text"><div class="cpos-name">Come Ti Vedi</div><div class="cpos-desc">La tua autopercepizione. Come stai vivendo interiormente questa situazione, le tue paure o le tue speranze.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">8</div><div class="cpos-text"><div class="cpos-name">Come Ti Vedono</div><div class="cpos-desc">L'influenza esterna: come gli altri ti percepiscono e come l'ambiente intorno a te influenza la situazione.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">9</div><div class="cpos-text"><div class="cpos-name">Speranze e Timori</div><div class="cpos-desc">Quello che desideri profondamente o ciò che temi di più. Spesso le due cose coincidono in modo sorprendente.</div></div></div>
+          <div class="celtic-pos"><div class="cpos-num">10</div><div class="cpos-text"><div class="cpos-name">Esito Finale</div><div class="cpos-desc">Il risultato probabile se le energie attuali rimangono invariate. La risposta finale dell'oracolo.</div></div></div>
+        </div>
+
+        <div class="qb" style="margin-top:12px;flex:1;display:flex;flex-direction:column">
+          <label>Formula la tua domanda a Morgana...</label>
+          <textarea id="qi" placeholder="Scrivi qui la tua domanda, oppure lascia vuoto per affidarti al destino. Puoi chiedere qualsiasi cosa: amore, lavoro, decisioni, percorsi di vita..." style="flex:1;min-height:140px;resize:none"></textarea>
+        </div>
+        <button class="btn" id="b2" onclick="goTo(3)" disabled>Mescola le Carte &#x2192;</button>
+      </div>
+
+      <!-- PESCA -->
+      <div class="phs" id="ph3">
+        <button class="bk" onclick="goTo(2)">&#x2190; Indietro</button>
+
+        <div id="digD">
+          <div class="slbl">Scegli le Carte</div>
+          <div class="mazzo-select-row">
+            <span class="mazzo-select-lbl">Mazzo:</span>
+            <button class="mazzo-sel-btn sel" id="mazzoRW" onclick="selectMazzoType('rw',this)">Rider-Waite</button>
+            <button class="mazzo-sel-btn" id="mazzoTHOT" onclick="selectMazzoType('thoth',this)">Thoth</button>
+            <button class="mazzo-sel-btn" id="mazzoMARS" onclick="selectMazzoType('marseille',this)">Marsiglia</button>
+          </div>
+
+          <!-- PAGE NAVIGATION -->
+          <div class="deck-nav">
+            <button class="deck-arrow" id="btnPrev" onclick="prevPage()" disabled>&#x2190;</button>
+            <span class="deck-pager" id="pageLabel">1 / 13</span>
+            <button class="shuffle-btn" id="btnShuffle" onclick="shuffleDeck()">&#x1F500; Mescola</button>
+            <button class="deck-arrow" id="btnNext" onclick="nextPage()">&#x2192;</button>
+          </div>
+
+          <!-- SWIPE PAGES CONTAINER -->
+          <div class="deck-outer" id="deckOuter">
+            <div class="deck-pages" id="deckPages"></div>
+          </div>
+
+          <p style="text-align:center;font-size:12px;color:rgba(196,174,224,.75);font-style:italic;margin-bottom:6px;line-height:1.5" id="deckHint">&#x1F0A0; Le carte sono coperte &mdash; tocca per selezionare &mdash; si svelano solo alla fine</p>
+          <div class="dst" style="margin-top:4px">
+            <span class="pct" id="pct">0 / 0 selezionate</span>
+          </div>
+          <button class="btn" id="bRev" onclick="reveal()" disabled>Rivela il Destino &#x2192;</button>
+        </div>
+
+        <div id="realD" style="display:none">
+          <div class="slbl">Inserisci le carte estratte</div>
+          <div class="rg"><strong>Istruzioni</strong><p>Estrai le carte dal mazzo, poi scrivi il nome oppure scatta una foto e Morgana la riconosce.</p></div>
+          <div class="mw" id="mi"></div>
+          <!-- CAMERA RECOGNITION -->
+          <div class="cam-section">
+            <div class="cam-title">&#x1F4F7; Riconosci con la fotocamera</div>
+            <p class="cam-hint">Seleziona la posizione, poi scatta la foto della carta</p>
+            <div class="cam-pos-row" id="camPosRow"></div>
+            <label class="cam-btn-wrap">
+              <input type="file" id="camInput" accept="image/*" capture="environment" style="display:none" onchange="recognizeCard(this)">
+              <span class="cam-btn" onclick="document.getElementById('camInput').click()">&#x1F4F7; Scatta Foto</span>
+            </label>
+            <div class="cam-preview" id="camPreview" style="display:none">
+              <img id="camImg" src="" alt="carta" style="max-width:100%;max-height:140px;border-radius:8px;border:1px solid rgba(212,168,67,.3)">
+              <div class="cam-result" id="camResult"><span class="dots"><span></span><span></span><span></span></span></div>
+            </div>
+          </div>
+          <button class="btn" onclick="interpReal()">Leggi le Carte &#x2192;</button>
+        </div>
+      </div>
+
+      <!-- LETTURA -->
+      <div class="phs" id="ph4">
+        <button class="bk" onclick="doReset()">&#x2736; Nuova Consultazione</button>
+        <div class="dr" id="cr"></div>
+        <div class="ib">
+          <div class="il">&#x2736; Profezia di Morgana &#x2736;</div>
+          <p id="it"><span class="dots"><span></span><span></span><span></span></span></p>
+        </div>
+        <div class="jb" id="jb" style="display:none">
+          <div class="jl">&#x2696; Lettura Chiara dell'Oracolo &#x2696;</div>
+          <div class="str" id="sr"></div>
+          <p id="jt"></p>
+        </div>
+        <div class="cb2" id="chatBox" style="display:none">
+          <div class="cl">&#x2736; Continua con Morgana &#x2736;</div>
+          <div class="cm" id="chatMsgs"></div>
+          <div class="cir">
+            <textarea class="cin" id="chatIn" placeholder="Chiedi un consiglio a Morgana..." rows="1"></textarea>
+            <button class="csb" id="chatSend" onclick="sendChat()">&#x25BA;</button>
+          </div>
+        </div>
+        <button class="btn" onclick="doReset()" style="margin-top:4px">&#x2736; Nuova Consultazione</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SUGGERIMENTI OVERLAY -->
+<div class="ai-chat-overlay" id="sugOverlay" style="z-index:49;overflow-y:auto;flex-direction:column">
+  <div class="ai-chat-hdr" style="flex-shrink:0">
+    <div class="ai-chat-title">&#x1F4D6; Suggerimenti</div>
+    <button class="ai-chat-close" onclick="document.getElementById('sugOverlay').classList.remove('open')">&#x2715;</button>
+  </div>
+  <div style="padding:12px 14px 20px;overflow-y:auto;flex:1">
+
+    <div class="sug-section-title">Metodi di Estrazione</div>
+    <div class="extraction-box">
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">A Mente Libera</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Mescola concentrandoti sulla domanda, chiudi gli occhi e scegli la carta che senti giusta. Perfetta per chi si fida del proprio intuito.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">A Ventaglio</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Spargi le carte coperte, fai scorrere la mano lentamente e scegli quella che ti provoca calore, formicolio o un richiamo istintivo.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Giornaliera (1 carta)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Una carta ogni mattina per ricevere un tema guida per la giornata. Ideale per sviluppare l'intuito nel tempo.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Multipla (2-5 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Per situazioni complesse. Esplora piu' aspetti contemporaneamente: es. 2 carte per lavoro e vita personale a inizio mese.</div></div>
+    </div>
+
+    <div class="sug-section-title">Tipi di Lettura</div>
+    <div class="extraction-box">
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Singola (1 carta)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Un consiglio diretto. Ottima per domande semplici o come carta del giorno. Risposta chiara e sintetica.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Si / No (2 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">La prima carta mostra la situazione attuale, la seconda da' il verdetto. Utile per decisioni binarie che richiedono una risposta netta.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Passato Presente Futuro (3 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Il classico per eccellenza. Mostra l'evoluzione: da dove vieni, dove sei ora e dove stai andando.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Mente e Cuore (2 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Mette a confronto cio' che pensi razionalmente con cio' che senti emotivamente. Utile quando ragione ed emozione sono in conflitto.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Relazione (3 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Esplora una relazione da tre punti di vista: Tu, L'altro, La relazione stessa. Rivela dinamiche nascoste.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">4 Elementi (5 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Analizza le 4 direzioni (Nord, Sud, Est, Ovest) piu' l'essenza centrale. Ottima per domande con piu' aspetti da considerare.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Ferro di Cavallo (7 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Struttura completa: Passato, Situazione attuale, Influenze esterne, Ostacoli, Speranze/Timori, Consiglio, Esito finale. Per situazioni complesse.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Chakra (7 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Una carta per ognuno dei 7 centri energetici: Radice, Sacrale, Plesso Solare, Cuore, Gola, Terzo Occhio, Corona. Rivela blocchi ed energie.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Croce Celtica (10 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">La lettura piu' completa. Esplora la situazione da ogni angolo: passato, sfide, fondamenta, prospettive future ed esito finale.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Anno Solare (12 carte)</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Una carta per ogni mese. Perfetta a gennaio per avere una guida per i 12 mesi. Ogni carta descrive il tema principale del mese.</div></div>
+    </div>
+
+    <div class="sug-section-title">Come Scegliere il Mazzo</div>
+    <div class="extraction-box">
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Rider-Waite</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Il mazzo piu' famoso al mondo. Immagini intuitive e ricche di simboli. Ideale per principianti e per chi cerca chiarezza immediata.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Thoth</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Creato da Aleister Crowley. Simbolismo esoterico profondo, ispirato alla Qabbalah e all'astrologia. Per lettori esperti.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Marsiglia</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">La tradizione europea classica, risalente al 1500. Immagini semplici e geometriche. Ottimo per la lettura intuitiva pura.</div></div>
+      <div class="ext-item" onclick="toggleExt(this)"><div class="ext-header"><span class="ext-title">Come Scegliere</span><span class="ext-arrow">&#x25BE;</span></div><div class="ext-body">Il mazzo deve risuonare con te visivamente e intuitivamente. Se un mazzo ti attrae anche solo guardandolo, e' quello giusto per te.</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AI CHAT OVERLAY -->
+<div class="ai-chat-overlay" id="aiChat">
+  <div class="ai-chat-hdr">
+    <div class="ai-chat-title">&#x1F52E; Oracolo AI</div>
+    <button class="ai-chat-close" onclick="closeAIChat()">&#x2715;</button>
+  </div>
+  <div class="ai-chat-msgs" id="aiChatMsgs">
+    <div class="ai-intro">
+      <div style="font-size:36px;margin-bottom:10px">&#x1F52E;</div>
+      <strong style="font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold2);font-style:normal">Morgana ti ascolta</strong><br><br>
+      Puoi chiedermi qualsiasi cosa: amore, lavoro, decisioni difficili, interpretazione di sogni, consigli di vita. Sono qui per guidarti con la saggezza dei tarocchi e delle stelle.
+    </div>
+  </div>
+  <div class="ai-chat-input-row">
+    <textarea class="ai-chat-input" id="aiChatIn" placeholder="Scrivi qui la tua domanda a Morgana..." rows="1"></textarea>
+    <button class="ai-chat-send" id="aiChatSend" onclick="sendAIMsg()">&#x25BA;</button>
+  </div>
+</div>
+
+<!-- DAILY MODAL — inside .ph for correct containment -->
+<div class="mo" id="mo">
+  <div class="mc2" id="mc2">
+    <button class="mcx" onclick="closeModal()">&#x2715;</button>
+
+    <!-- VIEW: MAIN MENU -->
+    <div id="mv-menu">
+      <div class="mci">&#x2728;</div>
+      <div class="mct">Spazio Astrale</div>
+      <div class="mv-grid">
+        <button class="mv-btn" onclick="openView('advice')"><span class="mv-ic">&#x2728;</span><span class="mv-lbl">Consiglio<br>del Giorno</span></button>
+        <button class="mv-btn mv-hor" onclick="openView('horoscope')"><span class="mv-ic">&#x2609;</span><span class="mv-lbl">Il Mio<br>Oroscopo</span></button>
+        <button class="mv-btn mv-par" onclick="openView('partner')"><span class="mv-ic">&#x2665;</span><span class="mv-lbl">Match<br>Partner</span></button>
+        <button class="mv-btn mv-asc" onclick="openView('ascendant')"><span class="mv-ic">&#x21A5;</span><span class="mv-lbl">Calcola<br>Ascendente</span></button>
+      </div>
+      <button class="mv-settings" onclick="openView('settings')">&#x2699; Impostazioni Profilo</button>
+    </div>
+
+    <!-- VIEW: ADVICE -->
+    <div id="mv-advice" style="display:none">
+      <button class="mv-back" onclick="openView('menu')">&#x2190; Indietro</button>
+      <div class="mci">&#x2728;</div>
+      <div class="mct">Consiglio del Giorno</div>
+      <div class="mcd" id="adviceText"><span class="dots"><span></span><span></span><span></span></span></div>
+      <button class="mcr" onclick="genAdvice()">&#x21BB; Nuovo consiglio</button>
+    </div>
+
+    <!-- VIEW: HOROSCOPE -->
+    <div id="mv-horoscope" style="display:none">
+      <button class="mv-back" onclick="openView('menu')">&#x2190; Indietro</button>
+      <div class="mci" id="horIcon">&#x2609;</div>
+      <div class="mct" id="horTitle">Oroscopo del Giorno</div>
+      <div id="horNoProfile" style="display:none">
+        <p style="text-align:center;font-size:13px;color:rgba(196,174,224,.7);font-style:italic;margin-bottom:14px">Imposta il tuo segno nelle Impostazioni</p>
+        <button class="btn" onclick="openView('settings')">&#x2699; Impostazioni</button>
+      </div>
+      <div id="horContent" style="display:none">
+        <div class="profile-badge" id="mySignBadge"></div>
+        <div class="mcd" id="horText"><span class="dots"><span></span><span></span><span></span></span></div>
+        <button class="mcr" onclick="genHoroscope()">&#x21BB; Ricarica</button>
+      </div>
+    </div>
+
+    <!-- VIEW: PARTNER MATCH -->
+    <div id="mv-partner" style="display:none">
+      <button class="mv-back" onclick="openView('menu')">&#x2190; Indietro</button>
+      <div class="mci">&#x2665;</div>
+      <div class="mct">Match del Giorno</div>
+      <div id="parNoProfile" style="display:none">
+        <p style="text-align:center;font-size:13px;color:rgba(196,174,224,.7);font-style:italic;margin-bottom:14px">Imposta il tuo segno e quello del partner nelle Impostazioni</p>
+        <button class="btn" onclick="openView('settings')">&#x2699; Impostazioni</button>
+      </div>
+      <div id="parContent" style="display:none">
+        <div class="match-badges" id="matchBadges"></div>
+        <div class="match-bar-wrap">
+          <div class="match-bar"><div class="match-fill" id="matchFill"></div></div>
+          <div class="match-pct" id="matchPct">...</div>
+        </div>
+        <div class="mcd" id="parText"><span class="dots"><span></span><span></span><span></span></span></div>
+        <button class="mcr" onclick="genPartner()">&#x21BB; Ricarica</button>
+      </div>
+    </div>
+
+    <!-- VIEW: ASCENDANT CALCULATOR -->
+    <div id="mv-ascendant" style="display:none">
+      <button class="mv-back" onclick="openView('menu')">&#x2190; Indietro</button>
+      <div class="mci">&#x21A5;</div>
+      <div class="mct">Calcola Ascendente</div>
+      <div class="asc-form">
+        <label class="form-lbl">Data di nascita</label>
+        <input type="date" class="form-inp" id="ascDate">
+        <label class="form-lbl">Ora di nascita</label>
+        <input type="time" class="form-inp" id="ascTime" placeholder="es. 14:30">
+        <label class="form-lbl">Luogo di nascita</label>
+        <input type="text" class="form-inp" id="ascPlace" placeholder="es. Milano, Roma...">
+        <button class="btn" style="margin-top:4px" onclick="calcAscendant()">Calcola &#x21A5;</button>
+      </div>
+      <div class="mcd" id="ascResult" style="display:none;margin-top:14px"></div>
+    </div>
+
+    <!-- VIEW: SETTINGS -->
+    <div id="mv-settings" style="display:none">
+      <button class="mv-back" onclick="openView('menu')">&#x2190; Indietro</button>
+      <div class="mci">&#x2699;</div>
+      <div class="mct">Impostazioni Profilo</div>
+
+      <label class="form-lbl">Il tuo segno zodiacale</label>
+      <div class="zg" id="mySignGrid"></div>
+
+      <label class="form-lbl" style="margin-top:10px">Segno del partner (opzionale)</label>
+      <div class="zg" id="parSignGrid"></div>
+
+      <label class="form-lbl" style="margin-top:10px">Il tuo nome (opzionale)</label>
+      <input type="text" class="form-inp" id="myName" placeholder="Il tuo nome...">
+
+      <label class="form-lbl" style="margin-top:8px">Nome del partner (opzionale)</label>
+      <input type="text" class="form-inp" id="parName" placeholder="Nome del partner...">
+
+      <button class="btn" style="margin-top:12px" onclick="saveSettings()">&#x2713; Salva Impostazioni</button>
+      <div class="save-ok" id="saveOk" style="display:none">&#x2713; Salvato!</div>
+    </div>
+
+  </div><!-- /mc2 -->
+</div><!-- /mo -->
+</div>
+
+
+<script>
+var CARDS = {"Il Matto": "https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg", "Il Mago": "https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_01_Magician.jpg", "La Papessa": "https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg", "L'Imperatrice": "https://upload.wikimedia.org/wikipedia/commons/d/d2/RWS_Tarot_03_Empress.jpg", "L'Imperatore": "https://upload.wikimedia.org/wikipedia/commons/c/c3/RWS_Tarot_04_Emperor.jpg", "Il Papa": "https://upload.wikimedia.org/wikipedia/commons/8/8d/RWS_Tarot_05_Hierophant.jpg", "Gli Amanti": "https://upload.wikimedia.org/wikipedia/commons/3/3a/TheLovers.jpg", "Il Carro": "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_07_Chariot.jpg", "La Forza": "https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg", "L'Eremita": "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg", "La Ruota": "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", "La Giustizia": "https://upload.wikimedia.org/wikipedia/commons/e/e0/RWS_Tarot_11_Justice.jpg", "L'Appeso": "https://upload.wikimedia.org/wikipedia/commons/2/2b/RWS_Tarot_12_Hanged_Man.jpg", "La Morte": "https://upload.wikimedia.org/wikipedia/commons/d/d7/RWS_Tarot_13_Death.jpg", "La Temperanza": "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg", "Il Diavolo": "https://upload.wikimedia.org/wikipedia/commons/5/55/RWS_Tarot_15_Devil.jpg", "La Torre": "https://upload.wikimedia.org/wikipedia/commons/5/5c/RWS_Tarot_16_Tower.jpg", "La Stella": "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg", "La Luna": "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg", "Il Sole": "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg", "Il Giudizio": "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", "Il Mondo": "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg", "Asso di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/1/11/Wands01.jpg", "Due di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Wands02.jpg", "Tre di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Wands03.jpg", "Quattro di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Wands04.jpg", "Cinque di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Wands05.jpg", "Sei di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Wands06.jpg", "Sette di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Wands07.jpg", "Otto di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Wands08.jpg", "Nove di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Tarot_Nine_of_Wands.jpg", "Dieci di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Wands10.jpg", "Fante di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Wands11.jpg", "Cavaliere di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/1/16/Wands12.jpg", "Regina di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Wands13.jpg", "Re di Bastoni": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Wands14.jpg", "Asso di Coppe": "https://upload.wikimedia.org/wikipedia/commons/3/36/Cups01.jpg", "Due di Coppe": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Cups02.jpg", "Tre di Coppe": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Cups03.jpg", "Quattro di Coppe": "https://upload.wikimedia.org/wikipedia/commons/3/35/Cups04.jpg", "Cinque di Coppe": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Cups05.jpg", "Sei di Coppe": "https://upload.wikimedia.org/wikipedia/commons/1/17/Cups06.jpg", "Sette di Coppe": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cups07.jpg", "Otto di Coppe": "https://upload.wikimedia.org/wikipedia/commons/6/60/Cups08.jpg", "Nove di Coppe": "https://upload.wikimedia.org/wikipedia/commons/2/24/Cups09.jpg", "Dieci di Coppe": "https://upload.wikimedia.org/wikipedia/commons/8/84/Cups10.jpg", "Fante di Coppe": "https://upload.wikimedia.org/wikipedia/commons/a/ad/Cups11.jpg", "Cavaliere di Coppe": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Cups12.jpg", "Regina di Coppe": "https://upload.wikimedia.org/wikipedia/commons/6/62/Cups13.jpg", "Re di Coppe": "https://upload.wikimedia.org/wikipedia/commons/0/04/Cups14.jpg", "Asso di Spade": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Swords01.jpg", "Due di Spade": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Swords02.jpg", "Tre di Spade": "https://upload.wikimedia.org/wikipedia/commons/0/02/Swords03.jpg", "Quattro di Spade": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Swords04.jpg", "Cinque di Spade": "https://upload.wikimedia.org/wikipedia/commons/2/23/Swords05.jpg", "Sei di Spade": "https://upload.wikimedia.org/wikipedia/commons/2/29/Swords06.jpg", "Sette di Spade": "https://upload.wikimedia.org/wikipedia/commons/3/34/Swords07.jpg", "Otto di Spade": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Swords08.jpg", "Nove di Spade": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Swords09.jpg", "Dieci di Spade": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Swords10.jpg", "Fante di Spade": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Swords11.jpg", "Cavaliere di Spade": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Swords12.jpg", "Regina di Spade": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Swords13.jpg", "Re di Spade": "https://upload.wikimedia.org/wikipedia/commons/3/33/Swords14.jpg", "Asso di Denari": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Pents01.jpg", "Due di Denari": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Pents02.jpg", "Tre di Denari": "https://upload.wikimedia.org/wikipedia/commons/4/42/Pents03.jpg", "Quattro di Denari": "https://upload.wikimedia.org/wikipedia/commons/3/35/Pents04.jpg", "Cinque di Denari": "https://upload.wikimedia.org/wikipedia/commons/9/96/Pents05.jpg", "Sei di Denari": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Pents06.jpg", "Sette di Denari": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Pents07.jpg", "Otto di Denari": "https://upload.wikimedia.org/wikipedia/commons/4/49/Pents08.jpg", "Nove di Denari": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Pents09.jpg", "Dieci di Denari": "https://upload.wikimedia.org/wikipedia/commons/4/42/Pents10.jpg", "Fante di Denari": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Pents11.jpg", "Cavaliere di Denari": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Pents12.jpg", "Regina di Denari": "https://upload.wikimedia.org/wikipedia/commons/8/88/Pents13.jpg", "Re di Denari": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Pents14.jpg"};
+var CARD_BACK = 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDMyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIzMjAiIGZpbGw9IiMxQTA4NDAiIHJ4PSIxMCIvPgo8cmVjdCB4PSI2IiB5PSI2IiB3aWR0aD0iMTg4IiBoZWlnaHQ9IjMwOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRDRBODQzIiBzdHJva2Utd2lkdGg9IjIiIHJ4PSI4Ii8+CjxyZWN0IHg9IjEyIiB5PSIxMiIgd2lkdGg9IjE3NiIgaGVpZ2h0PSIyOTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyMTIsMTY4LDY3LDAuNCkiIHN0cm9rZS13aWR0aD0iMSIgcng9IjYiLz4KPHBhdHRlcm4gaWQ9InAiIHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgPHBhdGggZD0iTTEwIDAgTDIwIDEwIEwxMCAyMCBMMCAxMCBaIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjEyLDE2OCw2NywwLjA4KSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPC9wYXR0ZXJuPgo8cmVjdCB4PSIxMiIgeT0iMTIiIHdpZHRoPSIxNzYiIGhlaWdodD0iMjk2IiBmaWxsPSJ1cmwoI3ApIiByeD0iNiIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxNjAiIHI9IjYwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjEyLDE2OCw2NywwLjIpIiBzdHJva2Utd2lkdGg9IjEiLz4KPGNpcmNsZSBjeD0iMTAwIiBjeT0iMTYwIiByPSI0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIxMiwxNjgsNjcsMC4xNSkiIHN0cm9rZS13aWR0aD0iMC44Ii8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjE2MCIgcj0iMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyMTIsMTY4LDY3LDAuMSkiIHN0cm9rZS13aWR0aD0iMC42Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZpbGw9InJnYmEoMjEyLDE2OCw2NywwLjUpIj4mI3gyNzM2OzwvdGV4dD4KPGxpbmUgeDE9IjQwIiB5MT0iMTYwIiB4Mj0iMTYwIiB5Mj0iMTYwIiBzdHJva2U9InJnYmEoMjEyLDE2OCw2NywwLjEyKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPGxpbmUgeDE9IjEwMCIgeTE9IjEwMCIgeDI9IjEwMCIgeTI9IjIyMCIgc3Ryb2tlPSJyZ2JhKDIxMiwxNjgsNjcsMC4xMikiIHN0cm9rZS13aWR0aD0iMC41Ii8+CjxsaW5lIHgxPSI1OCIgeTE9IjExOCIgeDI9IjE0MiIgeTI9IjIwMiIgc3Ryb2tlPSJyZ2JhKDIxMiwxNjgsNjcsMC4wOCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+CjxsaW5lIHgxPSIxNDIiIHkxPSIxMTgiIHgyPSI1OCIgeTI9IjIwMiIgc3Ryb2tlPSJyZ2JhKDIxMiwxNjgsNjcsMC4wOCkiIHN0cm9rZS13aWR0aD0iMC41Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSJyZ2JhKDIxMiwxNjgsNjcsMC4zNSkiIGxldHRlci1zcGFjaW5nPSIzIj5NT1JHQU5BPC90ZXh0Pgo8bGluZSB4MT0iNDAiIHkxPSI1NiIgeDI9IjE2MCIgeTI9IjU2IiBzdHJva2U9InJnYmEoMjEyLDE2OCw2NywwLjIpIiBzdHJva2Utd2lkdGg9IjAuNSIvPgo8dGV4dCB4PSIxMDAiIHk9IjI4NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9InJnYmEoMjEyLDE2OCw2NywwLjM1KSIgbGV0dGVyLXNwYWNpbmc9IjMiPk1PUkdBTkE8L3RleHQ+CjxsaW5lIHgxPSI0MCIgeTE9IjI3NyIgeDI9IjE2MCIgeTI9IjI3NyIgc3Ryb2tlPSJyZ2JhKDIxMiwxNjgsNjcsMC4yKSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPHRleHQgeD0iMjIiIHk9IjI5OCIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjEwIiBmaWxsPSJyZ2JhKDIxMiwxNjgsNjcsMC4zKSI+JiN4MjczNjs8L3RleHQ+Cjx0ZXh0IHg9IjE3OCIgeT0iMjk4IiBmb250LWZhbWlseT0ic2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9InJnYmEoMjEyLDE2OCw2NywwLjMpIiB0ZXh0LWFuY2hvcj0iZW5kIj4mI3gyNzM2OzwvdGV4dD4KPHRleHQgeD0iMjIiIHk9IjM2IiBmb250LWZhbWlseT0ic2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9InJnYmEoMjEyLDE2OCw2NywwLjMpIj4mI3gyNzM2OzwvdGV4dD4KPHRleHQgeD0iMTc4IiB5PSIzNiIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjEwIiBmaWxsPSJyZ2JhKDIxMiwxNjgsNjcsMC4zKSIgdGV4dC1hbmNob3I9ImVuZCI+JiN4MjczNjs8L3RleHQ+Cjwvc3ZnPg==';
+
+var MEANINGS = {
+  "Il Matto":["Inizio assoluto, liberta senza confini, salto nel vuoto con fiducia.","Imprudenza, rischi mal calcolati."],
+  "Il Mago":["Volonta creatrice, padronanza degli strumenti, potere di manifestare.","Inganno, manipolazione, talenti non sviluppati."],
+  "La Papessa":["Saggezza nascosta, intuito profondo, conoscenza nel silenzio.","Segreti dannosi, intuito bloccato."],
+  "L'Imperatrice":["Fertilita, abbondanza, bellezza, potere della natura.","Dipendenza, possessivita, blocco creativo."],
+  "L'Imperatore":["Autorita, struttura, forza che costruisce e governa.","Tirannia, rigidita, controllo oppressivo."],
+  "Il Papa":["Tradizione spirituale, guida morale, sapere tramandato.","Dogmatismo, ipocrisia, convenzioni soffocanti."],
+  "Gli Amanti":["Amore, unione delle anime, scelta cruciale del cuore.","Disarmonia, tradimento, decisione sbagliata."],
+  "Il Carro":["Vittoria con disciplina, trionfo della volonta.","Aggressivita, perdita di controllo, sconfitta."],
+  "La Forza":["Coraggio gentile, dominio delle passioni attraverso l'amore.","Debolezza, paura, energie disperse."],
+  "L'Eremita":["Solitudine saggia, ricerca interiore, luce nel buio.","Isolamento patologico, ostinazione."],
+  "La Ruota":["Cicli del destino, cambiamento inevitabile, nuovi inizi.","Resistenza inutile, cattiva sorte."],
+  "La Giustizia":["Equilibrio, causa ed effetto, verita che trionfa.","Ingiustizia, squilibrio."],
+  "L'Appeso":["Sacrificio volontario, visione capovolta, nuova saggezza.","Stagnazione, martirio sterile."],
+  "La Morte":["Trasformazione radicale, fine di un ciclo, rinascita.","Resistenza al cambiamento, stagnazione totale."],
+  "La Temperanza":["Equilibrio alchemico, pazienza, moderazione.","Eccesso, squilibrio, fretta che distrugge."],
+  "Il Diavolo":["Catene materiali, dipendenze, ombre dell'inconscio.","Liberazione, presa di coscienza."],
+  "La Torre":["Crollo improvviso, rivelazione, strutture false che cadono.","Evitare la crisi necessaria."],
+  "La Stella":["Speranza, rinnovamento, fede nel futuro.","Disperazione, cinismo."],
+  "La Luna":["Illusione, paure dell'inconscio, il velo della realta.","Chiarita che emerge, paure affrontate."],
+  "Il Sole":["Gioia, successo luminoso, vitalita, innocenza.","Vanita, euforia infondata."],
+  "Il Giudizio":["Risveglio spirituale, chiamata dell'anima, redenzione.","Rifiuto del risveglio."],
+  "Il Mondo":["Completamento del ciclo, totalita, integrazione.","Incompiutezza, ciclo irrisolto."]
+};
+
+var SP = {
+  single:{n:1,p:["L'Oracolo"]},
+  sino:{n:2,p:["Forza attuale","Verdetto"]},
+  ppp:{n:3,p:["Passato","Presente","Futuro"]},
+  elementi:{n:5,p:["Nord","Sud","Est","Ovest","Centro / Essenza"]},
+  ferro:{n:7,p:["Passato","Situazione attuale","Influenze esterne","Ostacoli","Speranze/Timori","Consiglio","Esito finale"]},
+  celtic:{n:10,p:["Situazione Attuale","La Sfida","Il Fondamento","Passato Recente","Possibile Futuro","Futuro Immediato","Come Ti Vedi","Come Ti Vedono","Speranze e Timori","Esito Finale"]},
+  rel:{n:3,p:["Tu","La relazione","L'altro"]},
+  mente:{n:2,p:["Mente","Cuore"]},
+  anno:{n:12,p:["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"]},
+  chakra:{n:7,p:["Radice","Sacrale","Plesso Solare","Cuore","Gola","Terzo Occhio","Corona"]}
+};
+
+var SIGNS=[
+  {sym:"&#x2648;",name:"Ariete"},{sym:"&#x2649;",name:"Toro"},
+  {sym:"&#x264A;",name:"Gemelli"},{sym:"&#x264B;",name:"Cancro"},
+  {sym:"&#x264C;",name:"Leone"},{sym:"&#x264D;",name:"Vergine"},
+  {sym:"&#x264E;",name:"Bilancia"},{sym:"&#x264F;",name:"Scorpione"},
+  {sym:"&#x2650;",name:"Sagittario"},{sym:"&#x2651;",name:"Capricorno"},
+  {sym:"&#x2652;",name:"Acquario"},{sym:"&#x2653;",name:"Pesci"}
+];
+
+var mode=null,spread=null,needed=1,picked=[],drawn=[],deckCards=[];
+var chatHistory=[],readingSummary="",dailyMode=null,selSign=null;
+var currentPage=0,totalPages=0;
+
+// SFONDO COSMICO ANIMATO — Canvas (draghi, strega, castello, stelle, luna)
+(function(){
+  // sfondo: solo stelle
+    var sfx=document.getElementById("sfx");
+  for(var i=0;i<120;i++){var s=document.createElement("div");s.className="st";var sz=0.4+Math.random()*2;s.style.cssText="width:"+sz+"px;height:"+sz+"px;background:"+(Math.random()>.6?"rgba(232,200,122,.9)":"rgba(200,180,255,.8)")+";left:"+Math.random()*100+"%;top:"+Math.random()*100+"%";s.style.setProperty("--d",(2+Math.random()*5)+"s");s.style.setProperty("--dl",(Math.random()*4)+"s");sfx.appendChild(s)}
+  [[8,6],[22,12],[72,4],[88,10],[14,38],[92,32],[4,55],[96,35],[28,50],[78,42],[50,18],[62,28],[35,8],[80,15],[15,60],[85,65],[40,75],[60,80],[25,90],[75,88],[50,95],[10,20],[90,25],[45,45],[55,55]].forEach(function(p){var s=document.createElement("div");s.className="sp";s.style.left=p[0]+"%";s.style.top=p[1]+"%";s.style.setProperty("--sz",(9+Math.random()*10)+"px");s.style.setProperty("--d",(3+Math.random()*4)+"s");s.style.setProperty("--dl",(Math.random()*4)+"s");sfx.appendChild(s)});
+})();
+
+function setProg(n){for(var i=1;i<=4;i++)document.getElementById("p"+i).classList.toggle("on",i<=n)}
+
+function pickMode(m){
+  mode=m;
+  document.getElementById("mD").classList.toggle("sel",m==="d");
+  document.getElementById("mR").classList.toggle("sel",m==="r");
+  document.getElementById("b1").disabled=false;
+  syncTopBtn();
+}
+
+function pickSpread(s,el){
+  spread=s;
+  document.querySelectorAll(".scd").forEach(function(c){c.classList.remove("sel")});
+  el.classList.add("sel");
+  document.getElementById("b2").disabled=false;
+  // Show/hide info panels
+  document.getElementById("celticInfo").classList.toggle("show", s==="celtic");
+}
+
+function goTo(n){
+  if(n===3){
+    var cfg=SP[spread];needed=cfg.n;picked=[];drawn=[];chatHistory=[];readingSummary="";
+    if(mode==="d"){
+      document.getElementById("digD").style.display="block";
+      document.getElementById("realD").style.display="none";
+      buildDeck(cfg);
+    } else {
+      document.getElementById("digD").style.display="none";
+      document.getElementById("realD").style.display="block";
+      buildManual(cfg);
+    }
+  }
+  document.querySelectorAll(".phs").forEach(function(p){p.classList.remove("active")});
+  document.getElementById("ph"+n).classList.add("active");
+  document.getElementById("sa").scrollTop=0;
+  setProg(n);
+}
+
+// ===== DECK: 6 cards per page =====
+var PER_PAGE=6;
+
+function buildDeck(cfg){
+  // Shuffle all 78 cards
+  var keys=Object.keys(CARDS).sort(function(){return Math.random()-.5});
+  deckCards=keys.map(function(k){return {name:k,img:CARDS[k],rev:Math.random()>.78}});
+  currentPage=0;
+  totalPages=Math.ceil(deckCards.length/PER_PAGE);
+  picked=[];
+  renderDeckPages();
+  updatePick();
+  document.getElementById("bRev").disabled=true;
+  updatePageNav();
+}
+
+function renderDeckPages(){
+  var container=document.getElementById("deckPages");
+  container.innerHTML="";
+  // Width = phone width
+  var phoneW=Math.min(390,window.innerWidth);
+  for(var p=0;p<totalPages;p++){
+    var page=document.createElement("div");
+    page.className="deck-page";
+    page.style.width=phoneW+"px";
+    page.style.minWidth=phoneW+"px";
+    var start=p*PER_PAGE;
+    var end=Math.min(start+PER_PAGE,deckCards.length);
+    for(var i=start;i<end;i++){
+      (function(idx){
+        var card=deckCards[idx];
+        var el=document.createElement("div");
+        el.className="swc";
+        el.dataset.i=idx;
+        /* Show BACK only - front revealed later */
+        el.innerHTML='<img class="card-back-img" src="'+CARD_BACK+'" alt="carta">'
+          +'<img class="card-front-img" src="'+card.img+'" alt="'+card.name+'" loading="lazy" style="display:none">'
+          +'<div class="cnm" style="display:none">'+card.name+'</div>';
+        el.addEventListener("click",function(){tapCard(el,idx)});
+        page.appendChild(el);
+      })(i);
+    }
+    container.appendChild(page);
+  }
+  gotoPage(0);
+}
+
+function gotoPage(p){
+  currentPage=p;
+  var phoneW=Math.min(390,window.innerWidth);
+  document.getElementById("deckPages").style.transform="translateX(-"+(p*phoneW)+"px)";
+  updatePageNav();
+}
+
+function nextPage(){gotoPage((currentPage+1)%totalPages)}
+function prevPage(){gotoPage((currentPage-1+totalPages)%totalPages)}
+
+function updatePageNav(){
+  document.getElementById("btnPrev").disabled=false;
+  document.getElementById("btnNext").disabled=false;
+  document.getElementById("pageLabel").textContent="Pagina "+(currentPage+1)+" / "+totalPages;
+}
+
+// Touch swipe on deck
+(function(){
+  var startX=null;
+  var outer=document.getElementById("deckOuter");
+  outer.addEventListener("touchstart",function(e){startX=e.touches[0].clientX},{passive:true});
+  outer.addEventListener("touchend",function(e){
+    if(startX===null)return;
+    var dx=e.changedTouches[0].clientX-startX;
+    if(Math.abs(dx)>50){
+      if(dx<0) nextPage();
+      else prevPage();
+    }
+    startX=null;
+  },{passive:true});
+})();
+
+function tapCard(el,i){
+  if(el.classList.contains("pk")){
+    el.classList.remove("pk");
+    picked=picked.filter(function(x){return x!==i});
+  } else {
+    if(picked.length>=needed) return;
+    el.classList.add("pk");
+    picked.push(i);
+  }
+  updatePick();
+  document.getElementById("bRev").disabled=picked.length<needed;
+}
+
+function revealAllCards(){
+  /* Flip all SELECTED cards to show front */
+  document.querySelectorAll(".swc.pk").forEach(function(el){
+    var back=el.querySelector(".card-back-img");
+    var front=el.querySelector(".card-front-img");
+    var nm=el.querySelector(".cnm");
+    if(back) back.style.display="none";
+    if(front) front.style.display="block";
+    if(nm) nm.style.display="block";
+    el.classList.add("revealed");
+  });
+}
+
+function updatePick(){
+  document.getElementById("pct").textContent=picked.length+" / "+needed+" selezionate";
+}
+
+function reveal(){
+  var cfg=SP[spread];
+  drawn=picked.map(function(idx,pos){
+    return {name:deckCards[idx].name,img:deckCards[idx].img,position:cfg.p[pos],rev:deckCards[idx].rev};
+  });
+  /* First reveal the selected cards with a flip animation */
+  revealAllCards();
+  /* Small delay for visual effect, then go to reading */
+  setTimeout(function(){ showReading(); }, 600);
+}
+
+function buildManual(cfg){
+  var c=document.getElementById("mi");c.innerHTML="";
+  cfg.p.forEach(function(pos,i){
+    var l=document.createElement("label");l.textContent=pos;
+    var inp=document.createElement("input");inp.type="text";
+    inp.placeholder='Es: "La Torre" o "La Torre (R)"';inp.id="mc"+i;
+    c.appendChild(l);c.appendChild(inp);
+  });
+}
+
+function interpReal(){
+  var cfg=SP[spread];drawn=[];
+  for(var i=0;i<cfg.n;i++){
+    var el=document.getElementById("mc"+i);
+    var v=el?el.value.trim():"";
+    var rev=/\(R\)$/i.test(v)||/ R$/i.test(v);
+    var name=v.replace(/\s*\(R\)\s*$/i,"").replace(/ R$/i,"").trim()||("Carta "+(i+1));
+    drawn.push({name:name,img:CARDS[name]||"",position:cfg.p[i],rev:rev});
+  }
+  showReading();
+}
+
+function showReading(){
+  goTo(4);
+  document.getElementById("jb").style.display="none";
+  document.getElementById("chatBox").style.display="none";
+  document.getElementById("chatMsgs").innerHTML="";
+  chatHistory=[];
+  renderDrawn();
+  fetchReading();
+}
+
+function renderDrawn(){
+  var c=document.getElementById("cr");c.innerHTML="";
+  drawn.forEach(function(card){
+    var el=document.createElement("div");el.className="dc";
+    var ph=card.rev?'<div class="da rv">':'<div class="da">';
+    var img=card.img?('<img src="'+card.img+'" alt="'+card.name+'" loading="lazy">'):'<div style="height:106px;background:#0A0318;display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(212,168,67,.4)">&#x2736;</div>';
+    el.innerHTML=ph+img+'</div><div class="dp">'+card.position+'</div><div class="dn">'+card.name+'</div>'+(card.rev?'<div class="dv">rovesciata</div>':'');
+    c.appendChild(el);
+  });
+}
+
+function getMeaning(name,rev){
+  var m=MEANINGS[name];
+  if(!m)return rev?"Energia bloccata o invertita.":"Carta di trasformazione e rivelazione.";
+  return rev?m[1]:m[0];
+}
+
+function fetchReading(){
+  var q=document.getElementById("qi").value.trim();
+  var spNames={
+    single:"carta singola",sino:"si/no",ppp:"Passato-Presente-Futuro",
+    celtic:"Croce Celtica",rel:"relazione",mente:"Mente e Cuore",
+    elementi:"4 Elementi",ferro:"Ferro di Cavallo",anno:"Anno Solare",chakra:"Chakra"
+  };
+  var spreadName=spNames[spread]||spread;
+  var lines=drawn.map(function(c){return "- "+c.position+": "+c.name+(c.rev?" (ROVESCIATA)":"")+", significato: "+getMeaning(c.name,c.rev)});
+  var summary="Metodo: "+spreadName+(q?"\nDomanda: "+q:"")+("\nCarte:\n")+lines.join("\n");
+  readingSummary=summary;
+
+  document.getElementById("it").innerHTML="<span class=\"dots\"><span></span><span></span><span></span></span>";
+  document.getElementById("jb").style.display="none";
+  document.getElementById("chatBox").style.display="none";
+
+  // CHIAMATA 1: Profezia poetica
+  var p1="Sei Morgana, maga e oracolo di Camelot. Lettura "+spreadName+(q?" sulla domanda: "+q:"")+".\nCarte:\n"+lines.join("\n")+"\n\nScrivi una profezia poetica e mistica in italiano, in prima persona come Morgana. Max 100 parole. Solo il testo.";
+  callAPI([{role:"user",content:p1}],null,600,function(profezia){
+    profezia=profezia.trim()||"Le carte sussurrano segreti antichi...";
+    document.getElementById("it").textContent=profezia;
+
+    // CHIAMATA 2: Lettura chiara
+    var p2="Sei Morgana, oracolo. Lettura "+spreadName+(q?" sulla domanda: "+q:"")+".\nCarte:\n"+lines.join("\n")+"\n\nSpiega in italiano semplice e diretto cosa significano queste carte: cosa sta succedendo, cosa succedera, cosa deve fare il consultante. Max 90 parole. Solo la spiegazione.";
+    callAPI([{role:"user",content:p2}],null,600,function(lettura){
+      lettura=lettura.trim()||"";
+      var stelle=3;
+      var pos=["Il Sole","La Stella","Il Mondo","Il Mago","L'Imperatrice","Il Carro","La Forza","Gli Amanti","Il Giudizio"];
+      var neg=["La Torre","La Morte","Il Diavolo","L'Appeso","La Luna","Tre di Spade","Dieci di Spade","Cinque di Coppe"];
+      drawn.forEach(function(c){
+        if(pos.indexOf(c.name)>=0)stelle=Math.min(5,stelle+0.6);
+        if(neg.indexOf(c.name)>=0)stelle=Math.max(1,stelle-0.6);
+      });
+      stelle=Math.round(stelle);
+      if(lettura){
+        var sr=document.getElementById("sr");sr.innerHTML="";
+        for(var i=1;i<=5;i++){(function(n){var s=document.createElement("span");s.className="star";s.textContent="\u2605";sr.appendChild(s);setTimeout(function(){if(n<=stelle)s.classList.add("lit")},n*150+400)})(i)}
+        document.getElementById("jt").textContent=lettura;
+        document.getElementById("jb").style.display="block";
+      }
+      chatHistory=[
+        {role:"user",content:"Sei Morgana. Hai appena fatto questa lettura:\n"+summary+"\nProfezia: "+profezia+(lettura?"\nLettura: "+lettura:"")+"\nRispondi alle domande del consultante come Morgana, in italiano."},
+        {role:"assistant",content:"Sono pronta ad ascoltare le tue domande."}
+      ];
+      setTimeout(function(){document.getElementById("chatBox").style.display="block";document.getElementById("sa").scrollTop=9999},600);
+    },function(){
+      chatHistory=[{role:"user",content:"Sei Morgana. Lettura:\n"+summary+"\nProfezia: "+profezia},{role:"assistant",content:"Sono pronta."}];
+      setTimeout(function(){document.getElementById("chatBox").style.display="block"},600);
+    });
+  },function(){document.getElementById("it").textContent="L'oracolo e silenzioso. Riprova tra poco."});
+}
+
+
+function addMsg(text,role){
+  var msgs=document.getElementById("chatMsgs");
+  var el=document.createElement("div");el.className="msg "+role;el.textContent=text;
+  msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function sendChat(){
+  var inp=document.getElementById("chatIn"),btn=document.getElementById("chatSend");
+  var text=inp.value.trim();if(!text)return;
+  inp.value="";inp.style.height="auto";
+  addMsg(text,"u");btn.disabled=true;
+  chatHistory.push({role:"user",content:text});
+  var ld=document.createElement("div");ld.className="msg o";ld.id="ldmsg";
+  ld.innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+  document.getElementById("chatMsgs").appendChild(ld);
+  document.getElementById("chatMsgs").scrollTop=9999;
+  callAPI(chatHistory,"Sei Morgana, maga e oracolo. Rispondi alle domande del consultante sulla sua lettura dei tarocchi. Sii diretta, empatica, concreta. Dai consigli pratici. Max 120 parole. In italiano.",600,function(reply){
+    var e=document.getElementById("ldmsg");if(e)e.remove();
+    addMsg(reply,"o");chatHistory.push({role:"assistant",content:reply});btn.disabled=false;
+  },function(){var e=document.getElementById("ldmsg");if(e)e.remove();addMsg("L'oracolo e silenzioso. Riprova.","o");btn.disabled=false});
+}
+
+document.getElementById("chatIn").addEventListener("input",function(){this.style.height="auto";this.style.height=Math.min(this.scrollHeight,90)+"px"});
+document.getElementById("chatIn").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat()}});
+
+function doReset(){
+  mode=null;spread=null;picked=[];drawn=[];needed=1;deckCards=[];chatHistory=[];readingSummary="";currentPage=0;
+  document.getElementById("mD").classList.remove("sel");document.getElementById("mR").classList.remove("sel");
+  document.querySelectorAll(".scd").forEach(function(c){c.classList.remove("sel")});
+  document.getElementById("celticInfo").classList.remove("show");
+  document.getElementById("b1").disabled=true;document.getElementById("b2").disabled=true;
+  document.getElementById("qi").value="";document.getElementById("chatMsgs").innerHTML="";
+  goTo(1);
+}
+
+// ===== SUGGERIMENTI =====
+function openSuggerimenti(){
+  document.getElementById("sugOverlay").classList.add("open");
+}
+
+// ===== MAZZO TYPE SELECTION =====
+var mazzoType = "rw"; // rw | thoth | marseille
+var MAZZO_THEMES = {
+  rw:        {name:"Rider-Waite",   tint:"rgba(0,0,0,0)"},
+  thoth:     {name:"Thoth",         tint:"rgba(180,100,0,.08)"},
+  marseille: {name:"Marsiglia",     tint:"rgba(0,80,180,.08)"}
+};
+
+// Real mazzo back image URLs
+var MAZZO_BACKS = {
+  rw:        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/RWS_Tarot_00_Fool.jpg/200px-RWS_Tarot_00_Fool.jpg",
+  thoth:     "https://upload.wikimedia.org/wikipedia/en/thumb/9/9e/Thoth_fool.jpg/200px-Thoth_fool.jpg",
+  marseille: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/TdM_Lematjpg.jpg/200px-TdM_Lematjpg.jpg"
+};
+
+function selectMazzoType(type, btn){
+  mazzoType = type;
+  document.querySelectorAll(".mazzo-sel-btn").forEach(function(b){b.classList.remove("sel")});
+  btn.classList.add("sel");
+  // Change the back image on all non-revealed non-picked cards
+  document.querySelectorAll(".swc:not(.pk) .card-back-img").forEach(function(img){
+    // Use the internal SVG back (always works), just change tint overlay
+    img.style.filter = type==="thoth"?"hue-rotate(30deg) saturate(1.3)":
+                       type==="marseille"?"sepia(.4) hue-rotate(-10deg)":"none";
+  });
+  // Show the mazzo name as a toast
+  var toast=document.getElementById("mazzoToast");
+  if(!toast){toast=document.createElement("div");toast.id="mazzoToast";toast.style.cssText="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(212,168,67,.15);border:1px solid rgba(212,168,67,.35);border-radius:8px;padding:6px 14px;font-family:'Cinzel Decorative',serif;font-size:9px;color:var(--gold2);letter-spacing:1px;white-space:nowrap;z-index:99;transition:opacity .5s";document.getElementById("ph3").appendChild(toast);}
+  toast.textContent="Mazzo: "+MAZZO_THEMES[type].name;
+  toast.style.opacity="1";
+  setTimeout(function(){toast.style.opacity="0"},2000);
+}
+
+// ===== SHUFFLE DECK =====
+function shuffleDeck(){
+  var btn = document.getElementById("btnShuffle");
+  btn.innerHTML = "&#x1F500;";
+  btn.disabled = true;
+
+  var pages = document.getElementById("deckPages");
+  var phoneW = Math.min(390, window.innerWidth);
+
+  // Phase 1: rapid page flick animation (scroll through pages)
+  var flickCount = 0;
+  var flickTotal = totalPages + 2; // flick through all pages + 2 extra
+  var flickInterval = setInterval(function(){
+    flickCount++;
+    var p = flickCount % totalPages;
+    pages.style.transition = "transform .1s ease";
+    pages.style.transform = "translateX(-" + (p * phoneW) + "px)";
+    document.getElementById("pageLabel").textContent = (p+1) + " / " + totalPages;
+    if(flickCount >= flickTotal){
+      clearInterval(flickInterval);
+
+      // Phase 2: shuffle the array
+      for(var i=deckCards.length-1;i>0;i--){
+        var j=Math.floor(Math.random()*(i+1));
+        var tmp=deckCards[i];deckCards[i]=deckCards[j];deckCards[j]=tmp;
+      }
+      picked = [];
+      updatePick();
+      document.getElementById("bRev").disabled = true;
+
+      // Phase 3: rebuild and land on a RANDOM page (not page 0)
+      renderDeckPages();
+      var randPage = Math.floor(Math.random() * totalPages);
+      // Slide in from left with a nice bounce
+      pages.style.transition = "none";
+      pages.style.transform = "translateX(" + phoneW + "px)"; // start off-screen right
+      setTimeout(function(){
+        pages.style.transition = "transform .45s cubic-bezier(.22,.68,0,1.2)";
+        gotoPage(randPage);
+        btn.innerHTML = "&#x1F500; Mescola";
+        btn.disabled = false;
+      }, 60);
+    }
+  }, 90);
+}
+
+
+// ===== SYNC TOP AVANZA BUTTON =====
+function syncTopBtn(){
+  var b1=document.getElementById("b1");
+  var b1t=document.getElementById("b1top");
+  if(b1t) b1t.disabled = b1.disabled;
+}
+
+// ===== EXTRACTION ACCORDION =====
+function toggleExt(el){
+  var isOpen = el.classList.contains("open");
+  document.querySelectorAll(".ext-item").forEach(function(e){e.classList.remove("open")});
+  if(!isOpen) el.classList.add("open");
+}
+
+// ===== AI CHAT (standalone) =====
+var aiChatHistory = [];
+
+function openAIChat(){
+  document.getElementById("aiChat").classList.add("open");
+  aiChatHistory = [];
+}
+function closeAIChat(){
+  document.getElementById("aiChat").classList.remove("open");
+}
+
+function addAIMsg(text, role){
+  var msgs = document.getElementById("aiChatMsgs");
+  var el = document.createElement("div");
+  el.className = "msg " + (role==="user"?"u":"o");
+  el.textContent = text;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendAIMsg(){
+  var inp = document.getElementById("aiChatIn");
+  var btn = document.getElementById("aiChatSend");
+  var text = inp.value.trim();
+  if(!text) return;
+  inp.value=""; inp.style.height="auto";
+  addAIMsg(text,"user");
+  btn.disabled=true;
+  aiChatHistory.push({role:"user",content:text});
+  var ld=document.createElement("div");
+  ld.className="msg o"; ld.id="aiLd";
+  ld.innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+  document.getElementById("aiChatMsgs").appendChild(ld);
+  document.getElementById("aiChatMsgs").scrollTop=9999;
+  var sys="Sei Morgana Le Fay, maga e oracolo di Camelot. Rispondi con saggezza, empatia e intuito ai quesiti del consultante. Puoi parlare di amore, lavoro, spiritualita, decisioni di vita. Usa un tono caldo ma diretto. Max 150 parole per risposta. In italiano.";
+  callAPI(aiChatHistory,sys,600,function(reply){
+    var e=document.getElementById("aiLd"); if(e)e.remove();
+    addAIMsg(reply,"o");
+    aiChatHistory.push({role:"assistant",content:reply});
+    btn.disabled=false;
+  },function(){
+    var e=document.getElementById("aiLd"); if(e)e.remove();
+    addAIMsg("L'oracolo e silenzioso. Riprova.","o");
+    btn.disabled=false;
+  });
+}
+
+document.getElementById("aiChatIn").addEventListener("input",function(){
+  this.style.height="auto";
+  this.style.height=Math.min(this.scrollHeight,100)+"px";
+});
+document.getElementById("aiChatIn").addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendAIMsg();}
+});
+
+// ===== DAILY =====
+var SIGNS_DATA = [
+  {sym:"&#x2648;",name:"Ariete",en:"Aries",dates:"21/3-20/4"},
+  {sym:"&#x2649;",name:"Toro",en:"Taurus",dates:"21/4-20/5"},
+  {sym:"&#x264A;",name:"Gemelli",en:"Gemini",dates:"21/5-20/6"},
+  {sym:"&#x264B;",name:"Cancro",en:"Cancer",dates:"21/6-22/7"},
+  {sym:"&#x264C;",name:"Leone",en:"Leo",dates:"23/7-22/8"},
+  {sym:"&#x264D;",name:"Vergine",en:"Virgo",dates:"23/8-22/9"},
+  {sym:"&#x264E;",name:"Bilancia",en:"Libra",dates:"23/9-22/10"},
+  {sym:"&#x264F;",name:"Scorpione",en:"Scorpio",dates:"23/10-21/11"},
+  {sym:"&#x2650;",name:"Sagittario",en:"Sagittarius",dates:"22/11-21/12"},
+  {sym:"&#x2651;",name:"Capricorno",en:"Capricorn",dates:"22/12-19/1"},
+  {sym:"&#x2652;",name:"Acquario",en:"Aquarius",dates:"20/1-18/2"},
+  {sym:"&#x2653;",name:"Pesci",en:"Pisces",dates:"19/2-20/3"}
+];
+
+// Profile stored in memory (sessionStorage simulation with vars)
+var profile = {mySign:null, parSign:null, myName:"", parName:""};
+
+// Load profile from localStorage if available
+(function(){
+  try {
+    var saved = localStorage.getItem("morgana_profile");
+    if(saved) profile = JSON.parse(saved);
+  } catch(e){}
+})();
+
+function saveProfile(){
+  try { localStorage.setItem("morgana_profile", JSON.stringify(profile)); } catch(e){}
+}
+
+function openModal(){
+  document.getElementById("mo").classList.add("open");
+  openView("menu");
+}
+function closeModal(){
+  document.getElementById("mo").classList.remove("open");
+}
+// Clicking backdrop closes modal
+document.getElementById("mo").addEventListener("click",function(e){
+  if(e.target===document.getElementById("mo")) closeModal();
+});
+
+function openView(view){
+  var views=["menu","advice","horoscope","partner","ascendant","settings"];
+  views.forEach(function(v){
+    var el=document.getElementById("mv-"+v);
+    if(el) el.style.display = v===view?"block":"none";
+  });
+  if(view==="advice") genAdvice();
+  if(view==="horoscope") showHoroscope();
+  if(view==="partner") showPartner();
+  if(view==="settings") initSettings();
+}
+
+// ---- ADVICE ----
+var lastAdviceDate = "";
+var cachedAdvice = "";
+
+function genAdvice(){
+  var today = new Date().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+  if(today===lastAdviceDate && cachedAdvice){
+    document.getElementById("adviceText").textContent = cachedAdvice;
+    return;
+  }
+  document.getElementById("adviceText").innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+  var name = profile.myName ? " per "+profile.myName : "";
+  var sign = profile.mySign ? ", segno "+profile.mySign.name : "";
+  callAPI([{role:"user",content:"Sei Morgana, maga e oracolo. Genera un consiglio del giorno"+name+sign+" per oggi ("+today+"). POSITIVO e MOTIVAZIONALE, ispirato alla saggezza dei tarocchi, pratico, max 70 parole in italiano. Solo il testo del consiglio."}],null,300,function(t){
+    cachedAdvice=t; lastAdviceDate=today;
+    document.getElementById("adviceText").textContent=t||"Le stelle ti sorridono oggi.";
+  },function(){document.getElementById("adviceText").textContent="L'oracolo tace per un momento."});
+}
+
+// ---- HOROSCOPE ----
+var lastHorDate = ""; var cachedHor = "";
+
+function showHoroscope(){
+  if(!profile.mySign){
+    document.getElementById("horNoProfile").style.display="block";
+    document.getElementById("horContent").style.display="none";
+    return;
+  }
+  document.getElementById("horNoProfile").style.display="none";
+  document.getElementById("horContent").style.display="block";
+  var s = profile.mySign;
+  document.getElementById("horIcon").innerHTML=s.sym;
+  document.getElementById("horTitle").textContent="Oroscopo - "+s.name;
+  document.getElementById("mySignBadge").innerHTML='<span class="pb-sym">'+s.sym+'</span><span class="pb-name">'+s.name+'</span>';
+  genHoroscope();
+}
+
+function genHoroscope(){
+  if(!profile.mySign) return;
+  var today=new Date().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+  if(today===lastHorDate && cachedHor){
+    document.getElementById("horText").textContent=cachedHor; return;
+  }
+  document.getElementById("horText").innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+  var s=profile.mySign;
+  var name=profile.myName?profile.myName:s.name;
+  callAPI([{role:"user",content:"Sei Morgana, oracolo astrologico. Oroscopo di oggi ("+today+") per "+name+", segno "+s.name+". POSITIVO, copri amore lavoro energia, specifico per "+s.name+", max 90 parole in italiano. Concludi con frase motivazionale. Solo il testo."}],null,400,function(t){
+    cachedHor=t; lastHorDate=today;
+    document.getElementById("horText").textContent=t||"Le stelle brillano per te oggi.";
+  },function(){document.getElementById("horText").textContent="Le stelle sono velate."});
+}
+
+// ---- PARTNER MATCH ----
+var lastParDate=""; var cachedPar={text:"",pct:0};
+
+function showPartner(){
+  if(!profile.mySign||!profile.parSign){
+    document.getElementById("parNoProfile").style.display="block";
+    document.getElementById("parContent").style.display="none";
+    return;
+  }
+  document.getElementById("parNoProfile").style.display="none";
+  document.getElementById("parContent").style.display="block";
+  var ms=profile.mySign, ps=profile.parSign;
+  var mn=profile.myName||ms.name, pn=profile.parName||ps.name;
+  document.getElementById("matchBadges").innerHTML=
+    '<div class="match-badge"><span class="mb-sym">'+ms.sym+'</span><span class="mb-name">'+mn+'</span></div>'+
+    '<div class="match-heart">&#x2665;</div>'+
+    '<div class="match-badge"><span class="mb-sym">'+ps.sym+'</span><span class="mb-name">'+pn+'</span></div>';
+  genPartner();
+}
+
+function genPartner(){
+  if(!profile.mySign||!profile.parSign) return;
+  var today=new Date().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+  if(today===lastParDate && cachedPar.text){
+    document.getElementById("parText").textContent=cachedPar.text;
+    animateMatchBar(cachedPar.pct); return;
+  }
+  document.getElementById("parText").innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+  var ms=profile.mySign, ps=profile.parSign;
+  var mn=profile.myName||ms.name, pn=profile.parName||ps.name;
+  callAPI([{role:"user",content:'Sei Morgana, oracolo. Match astrologico di oggi ('+today+') tra '+mn+' ('+ms.name+') e '+pn+' ('+ps.name+'). Rispondi SOLO con JSON: {"testo":"descrizione del match oggi max 80 parole, positiva e incoraggiante","pct":75} dove pct e percentuale compatibilita oggi da 50 a 99.'}],null,400,function(t){
+    var d; try{d=JSON.parse(t)}catch(e){d={testo:t,pct:75};}
+    cachedPar={text:d.testo,pct:d.pct}; lastParDate=today;
+    document.getElementById("parText").textContent=d.testo||"Un giorno speciale per voi due.";
+    animateMatchBar(d.pct||75);
+  },function(){document.getElementById("parText").textContent="L'oracolo tace.";animateMatchBar(70)});
+}
+
+function animateMatchBar(pct){
+  document.getElementById("matchFill").style.width="0%";
+  document.getElementById("matchPct").textContent="...";
+  setTimeout(function(){
+    document.getElementById("matchFill").style.width=pct+"%";
+    document.getElementById("matchPct").textContent=pct+"% compatibili oggi";
+  },100);
+}
+
+// ---- ASCENDANT ----
+function calcAscendant(){
+  var date=document.getElementById("ascDate").value;
+  var time=document.getElementById("ascTime").value;
+  var place=document.getElementById("ascPlace").value.trim();
+  if(!date||!time){alert("Inserisci data e ora di nascita");return;}
+  var res=document.getElementById("ascResult");
+  res.style.display="block";
+  res.innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+  var parts=date.split("-");
+  var dateIt=(parts[2]||"?")+"/"+(parts[1]||"?")+"/"+(parts[0]||"?");
+  callAPI([{role:"user",content:"Sei Morgana, astrologa. Calcola l'ascendente per chi e nato il "+dateIt+" alle "+time+(place?" a "+place:"")+". Spiega quale ascendente e e come influenza la personalita. Max 100 parole in italiano. Testo diretto."}],null,500,function(t){
+    res.textContent=t||"Calcolo non disponibile.";
+  },function(){res.textContent="Errore nel calcolo. Riprova."});
+}
+
+// ---- SETTINGS ----
+function initSettings(){
+  buildSignGrid("mySignGrid","my");
+  buildSignGrid("parSignGrid","par");
+  document.getElementById("myName").value=profile.myName||"";
+  document.getElementById("parName").value=profile.parName||"";
+  document.getElementById("saveOk").style.display="none";
+}
+
+function buildSignGrid(gridId, who){
+  var grid=document.getElementById(gridId);
+  grid.innerHTML="";
+  SIGNS_DATA.forEach(function(s){
+    var btn=document.createElement("button");
+    btn.className="zb"+(((who==="my"&&profile.mySign&&profile.mySign.name===s.name)||(who==="par"&&profile.parSign&&profile.parSign.name===s.name))?" sel":"");
+    btn.innerHTML='<span class="zs">'+s.sym+'</span><span class="zn">'+s.name+'</span>';
+    btn.onclick=(function(sign,w,b){return function(){
+      var gid=w==="my"?"mySignGrid":"parSignGrid";
+      document.querySelectorAll("#"+gid+" .zb").forEach(function(x){x.classList.remove("sel")});
+      b.classList.add("sel");
+      if(w==="my") profile.mySign=sign;
+      else profile.parSign=sign;
+    }})(s,who,btn);
+    grid.appendChild(btn);
+  });
+}
+
+function saveSettings(){
+  profile.myName=document.getElementById("myName").value.trim();
+  profile.parName=document.getElementById("parName").value.trim();
+  saveProfile();
+  // Invalidate caches
+  lastAdviceDate=""; lastHorDate=""; lastParDate=""; cachedAdvice=""; cachedHor=""; cachedPar={text:"",pct:0};
+  document.getElementById("saveOk").style.display="block";
+  setTimeout(function(){document.getElementById("saveOk").style.display="none"},2000);
+}
+
+// ---- OPEN FROM HOME BUTTONS ----
+function openDaily(type){
+  document.getElementById("mo").classList.add("open");
+  openView(type==="advice"?"advice":type==="horoscope"?"horoscope":"menu");
+}
+
+function callAPI(messages,system,maxTok,onOk,onErr){
+  var body={model:"llama-3.3-70b-versatile",max_tokens:maxTok,messages:messages};
+  if(system) body.system=system;
+  fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+  .then(function(r){return r.json()})
+  .then(function(data){
+    if(data.error){onErr(new Error(data.error.message||"Errore"));return;}
+    var t=(data.content&&data.content.find(function(b){return b.type==="text"}))||{};
+    onOk((t.text||"").trim());
+  })
+  .catch(function(e){onErr(e)});
+}
+</script>
+</body>
+</html>
