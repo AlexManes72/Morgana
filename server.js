@@ -5,7 +5,7 @@ const path    = require('path');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-const GROQ_KEY = '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';
+const GROQ_KEY = process.env.GROQ_API_KEY || '';
 
 app.use(express.json({ limit: '2mb' }));
 app.use(function(req,res,next){ res.setHeader('Cache-Control','no-store'); next(); });
