@@ -131,8 +131,8 @@ body{font-family:"Cormorant Garamond",serif}
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px}
 .scd{background:rgba(255,255,255,.06);border:1px solid rgba(184,159,216,.2);border-radius:11px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .17s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .scd:active,.scd.sel{border-color:var(--gold2);background:rgba(212,168,67,.08)}
-.scd h3{font-family:"Cinzel Decorative",serif;font-size:9px;color:var(--gold2);margin-bottom:3px}
-.scd p{font-size:10px;color:var(--bone2);font-style:italic;line-height:1.3}
+.scd h3{font-family:"Cinzel Decorative",serif;font-size:11px;color:var(--gold2);margin-bottom:4px;font-weight:700;letter-spacing:.5px}
+.scd p{font-size:11.5px;color:var(--bone);font-style:italic;line-height:1.4;font-weight:400}
 .spp{display:flex;gap:3px;justify-content:center;margin-bottom:5px}
 .pip{width:6px;height:10px;background:rgba(155,95,188,.32);border:1px solid rgba(212,168,67,.18);border-radius:1px}
 /* CELTIC INFO */
@@ -848,15 +848,15 @@ var MEANINGS = {
 
 var SP = {
   single:{n:1,p:["L'Oracolo"]},
-  sino:{n:2,p:["Forza attuale","Verdetto"]},
+  sino:{n:2,p:["Situazione attuale","Verdetto finale"]},
   ppp:{n:3,p:["Passato","Presente","Futuro"]},
-  elementi:{n:5,p:["Nord","Sud","Est","Ovest","Centro / Essenza"]},
-  ferro:{n:7,p:["Passato","Situazione attuale","Influenze esterne","Ostacoli","Speranze/Timori","Consiglio","Esito finale"]},
-  celtic:{n:10,p:["Situazione Attuale","La Sfida","Il Fondamento","Passato Recente","Possibile Futuro","Futuro Immediato","Come Ti Vedi","Come Ti Vedono","Speranze e Timori","Esito Finale"]},
+  elementi:{n:4,p:["Terra (Stabilita)","Acqua (Emozioni)","Aria (Pensieri)","Fuoco (Azione)"]},
+  ferro:{n:7,p:["Passato","Presente","Influenze nascoste","Ostacoli","Ambiente e persone vicine","Consiglio dell'Oracolo","Esito finale"]},
+  celtic:{n:10,p:["Situazione attuale","La Sfida","Radici e fondamento","Passato recente","Obiettivi e aspirazioni","Futuro prossimo","Come ti vedi","Come ti vedono gli altri","Speranze e timori","Esito finale"]},
   rel:{n:3,p:["Tu","La relazione","L'altro"]},
-  mente:{n:2,p:["Mente","Cuore"]},
+  mente:{n:2,p:["Mente (Ragione)","Cuore (Emozione)"]},
   anno:{n:12,p:["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"]},
-  chakra:{n:7,p:["Radice","Sacrale","Plesso Solare","Cuore","Gola","Terzo Occhio","Corona"]}
+  chakra:{n:7,p:["Radice (Sicurezza)","Sacrale (Creativita)","Plesso Solare (Potere)","Cuore (Amore)","Gola (Comunicazione)","Terzo Occhio (Intuizione)","Corona (Spiritualita)"]}
 };
 
 var SIGNS=[
@@ -1037,19 +1037,22 @@ function reveal(){
     return {name:deckCards[idx].name,img:deckCards[idx].img,position:cfg.p[pos],rev:deckCards[idx].rev};
   });
   // Carta sintesi per spread con 4 carte (elementi) o Celtic (10)
-  if(spread==="elementi" || (spread==="celtic" && drawn.length>=4)){
+  if(spread==="elementi"){
     var sum=0;
     drawn.forEach(function(c){
       var n=CARD_NUMBERS[c.name];
       if(n!==undefined) sum+=n;
     });
-    // Riduci a 0-21 con somma ciclica
-    while(sum>21) sum=sum%22;
+    // Riduci sommando le cifre finché non è <= 21
+    while(sum > 21){
+      var digits = String(sum).split('');
+      sum = digits.reduce(function(a,b){return a + parseInt(b)}, 0);
+    }
     // Trova la carta corrispondente
     var MAJOR_LIST=["Il Matto","Il Mago","La Papessa","L'Imperatrice","L'Imperatore","Il Papa","Gli Amanti","Il Carro","La Forza","L'Eremita","La Ruota","La Giustizia","L'Appeso","La Morte","La Temperanza","Il Diavolo","La Torre","La Stella","La Luna","Il Sole","Il Giudizio","Il Mondo"];
     var synthName=MAJOR_LIST[sum];
     if(synthName && CARDS[synthName]){
-      drawn.push({name:synthName,img:CARDS[synthName],position:"Carta Sintesi ("+sum+")",rev:false,isSynth:true});
+      drawn.push({name:synthName,img:CARDS[synthName],position:"5° Elemento - Sintesi (n."+sum+")",rev:false,isSynth:true});
     }
   }
   /* First reveal the selected cards with a flip animation */
@@ -1277,22 +1280,64 @@ function shuffleDeck(){
       updatePick();
       document.getElementById("bRev").disabled = true;
 
-      // Phase 3: rebuild and land on a RANDOM page (not page 0)
-      renderDeckPages();
-      var randPage = Math.floor(Math.random() * totalPages);
-      // Slide in from left with a nice bounce
-      pages.style.transition = "none";
-      pages.style.transform = "translateX(" + phoneW + "px)"; // start off-screen right
-      setTimeout(function(){
-        pages.style.transition = "transform .45s cubic-bezier(.22,.68,0,1.2)";
-        gotoPage(randPage);
-        btn.innerHTML = "&#x1F500; Mescola";
-        btn.disabled = false;
-      }, 60);
+      // Phase 3: show "taglia il mazzo" overlay
+      showTaglioMazzo(function(){
+        // After cut: rebuild and land on a RANDOM page
+        renderDeckPages();
+        var randPage = Math.floor(Math.random() * totalPages);
+        pages.style.transition = "none";
+        pages.style.transform = "translateX(" + phoneW + "px)";
+        setTimeout(function(){
+          pages.style.transition = "transform .45s cubic-bezier(.22,.68,0,1.2)";
+          gotoPage(randPage);
+          btn.innerHTML = "&#x1F500; Mescola";
+          btn.disabled = false;
+        }, 60);
+      });
     }
   }, 90);
 }
 
+
+// ===== TAGLIO DEL MAZZO =====
+function showTaglioMazzo(onCut){
+  // Create overlay for cutting the deck
+  var el = document.getElementById("taglioOverlay");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "taglioOverlay";
+    el.style.cssText = "position:absolute;inset:0;z-index:60;background:rgba(4,2,20,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;backdrop-filter:blur(8px)";
+    el.innerHTML = '<div style="font-family:Cinzel Decorative,serif;font-size:14px;color:#E8C87A;letter-spacing:2px;text-align:center;text-shadow:0 0 20px rgba(212,168,67,.5)">&#x2736; Taglia il Mazzo &#x2736;</div>'
+      + '<p style="font-family:Cormorant Garamond,serif;font-size:14px;color:#C4AEE0;font-style:italic;text-align:center;padding:0 30px;line-height:1.7">Tocca il punto dove vuoi tagliare il mazzo. La parte inferiore salira in cima.</p>'
+      + '<div id="taglioCard" style="width:120px;height:190px;background:linear-gradient(145deg,#180840,#0D0530);border:2px solid rgba(212,168,67,.4);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(212,168,67,.2);transition:transform .2s">'
+      + '<span style="font-size:40px;color:rgba(212,168,67,.4)">&#x2736;</span></div>'
+      + '<p style="font-family:Cinzel Decorative,serif;font-size:9px;color:rgba(212,168,67,.5);letter-spacing:2px">TOCCA LA CARTA PER TAGLIARE</p>';
+    document.querySelector(".ph").appendChild(el);
+  }
+  el.style.display = "flex";
+
+  // Animate card
+  var card = document.getElementById("taglioCard");
+  card.onmouseenter = function(){ this.style.transform = "scale(1.05)"; };
+  card.onmouseleave = function(){ this.style.transform = "scale(1)"; };
+
+  card.onclick = function(){
+    // Cut the deck: random cut point
+    var cutPoint = Math.floor(Math.random() * (deckCards.length - 4)) + 2;
+    var top = deckCards.slice(0, cutPoint);
+    var bottom = deckCards.slice(cutPoint);
+    deckCards = bottom.concat(top); // bottom goes on top
+
+    // Animate the cut
+    card.style.transform = "translateY(-20px) scale(1.1)";
+    card.style.boxShadow = "0 0 40px rgba(212,168,67,.6)";
+    setTimeout(function(){
+      card.style.transform = "scale(1)";
+      el.style.display = "none";
+      onCut();
+    }, 400);
+  };
+}
 
 // ===== SYNC TOP AVANZA BUTTON =====
 function syncTopBtn(){
