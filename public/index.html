@@ -574,6 +574,11 @@ body{font-family:"Cormorant Garamond",serif}
             <button class="mazzo-sel-btn" id="mazzoTHOT" onclick="selectMazzoType('thoth',this)">Thoth</button>
             <button class="mazzo-sel-btn" id="mazzoMARS" onclick="selectMazzoType('marseille',this)">Marsiglia</button>
           </div>
+          <div class="mazzo-select-row" style="margin-top:-4px">
+            <span class="mazzo-select-lbl">Carte:</span>
+            <button class="mazzo-sel-btn sel" id="btnMajor" onclick="setMinori(false,this)">&#x2605; Solo Arcani Maggiori (22)</button>
+            <button class="mazzo-sel-btn" id="btnAll" onclick="setMinori(true,this)">Tutti i 78 Arcani</button>
+          </div>
 
           <!-- PAGE NAVIGATION -->
           <div class="deck-nav">
@@ -918,7 +923,11 @@ var PER_PAGE=6;
 
 function buildDeck(cfg){
   // Shuffle all 78 cards
-  var keys=Object.keys(CARDS).sort(function(){return Math.random()-.5});
+  // Filtra carte: solo arcani maggiori o tutti i 78
+  var MAJOR = ["Il Matto","Il Mago","La Papessa","L'Imperatrice","L'Imperatore","Il Papa","Gli Amanti","Il Carro","La Forza","L'Eremita","La Ruota","La Giustizia","L'Appeso","La Morte","La Temperanza","Il Diavolo","La Torre","La Stella","La Luna","Il Sole","Il Giudizio","Il Mondo"];
+  var allKeys = Object.keys(CARDS);
+  var useKeys = includiMinori ? allKeys : MAJOR.filter(function(k){return CARDS[k]});
+  var keys = useKeys.sort(function(){return Math.random()-.5});
   deckCards=keys.map(function(k){return {name:k,img:CARDS[k],rev:Math.random()>.78}});
   currentPage=0;
   totalPages=Math.ceil(deckCards.length/PER_PAGE);
@@ -1027,6 +1036,22 @@ function reveal(){
   drawn=picked.map(function(idx,pos){
     return {name:deckCards[idx].name,img:deckCards[idx].img,position:cfg.p[pos],rev:deckCards[idx].rev};
   });
+  // Carta sintesi per spread con 4 carte (elementi) o Celtic (10)
+  if(spread==="elementi" || (spread==="celtic" && drawn.length>=4)){
+    var sum=0;
+    drawn.forEach(function(c){
+      var n=CARD_NUMBERS[c.name];
+      if(n!==undefined) sum+=n;
+    });
+    // Riduci a 0-21 con somma ciclica
+    while(sum>21) sum=sum%22;
+    // Trova la carta corrispondente
+    var MAJOR_LIST=["Il Matto","Il Mago","La Papessa","L'Imperatrice","L'Imperatore","Il Papa","Gli Amanti","Il Carro","La Forza","L'Eremita","La Ruota","La Giustizia","L'Appeso","La Morte","La Temperanza","Il Diavolo","La Torre","La Stella","La Luna","Il Sole","Il Giudizio","Il Mondo"];
+    var synthName=MAJOR_LIST[sum];
+    if(synthName && CARDS[synthName]){
+      drawn.push({name:synthName,img:CARDS[synthName],position:"Carta Sintesi ("+sum+")",rev:false,isSynth:true});
+    }
+  }
   /* First reveal the selected cards with a flip animation */
   revealAllCards();
   /* Small delay for visual effect, then go to reading */
@@ -1177,6 +1202,9 @@ function openSuggerimenti(){
 
 // ===== MAZZO TYPE SELECTION =====
 var mazzoType = "rw"; // rw | thoth | marseille
+var includiMinori = false;
+var CARD_NUMBERS = {"Il Matto":0,"Il Mago":1,"La Papessa":2,"L'Imperatrice":3,"L'Imperatore":4,"Il Papa":5,"Gli Amanti":6,"Il Carro":7,"La Forza":8,"L'Eremita":9,"La Ruota":10,"La Giustizia":11,"L'Appeso":12,"La Morte":13,"La Temperanza":14,"Il Diavolo":15,"La Torre":16,"La Stella":17,"La Luna":18,"Il Sole":19,"Il Giudizio":20,"Il Mondo":21};
+ // default: solo arcani maggiori
 var MAZZO_THEMES = {
   rw:        {name:"Rider-Waite",   tint:"rgba(0,0,0,0)"},
   thoth:     {name:"Thoth",         tint:"rgba(180,100,0,.08)"},
@@ -1189,6 +1217,17 @@ var MAZZO_BACKS = {
   thoth:     "https://upload.wikimedia.org/wikipedia/en/thumb/9/9e/Thoth_fool.jpg/200px-Thoth_fool.jpg",
   marseille: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/TdM_Lematjpg.jpg/200px-TdM_Lematjpg.jpg"
 };
+
+function setMinori(val, btn){
+  includiMinori = val;
+  document.querySelectorAll("#btnMajor,#btnAll").forEach(function(b){b.classList.remove("sel")});
+  btn.classList.add("sel");
+  // Rebuild deck with new card set
+  if(deckCards.length > 0){
+    var cfg = SP[spread];
+    buildDeck(cfg);
+  }
+}
 
 function selectMazzoType(type, btn){
   mazzoType = type;
@@ -1549,6 +1588,4 @@ function callAPI(messages,system,maxTok,onOk,onErr){
   })
   .catch(function(e){onErr(e)});
 }
-</script>
-</body>
-</html>
+
