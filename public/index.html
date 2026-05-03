@@ -1127,14 +1127,20 @@ function fetchReading(){
   document.getElementById("chatBox").style.display="none";
 
   // CHIAMATA 1: Profezia poetica
-  var p1="Sei Morgana, maga e oracolo di Camelot. Lettura "+spreadName+(q?" sulla domanda: "+q:"")+".\nCarte:\n"+lines.join("\n")+"\n\nScrivi una profezia poetica e mistica in italiano, in prima persona come Morgana. Max 100 parole. Solo il testo.";
+  var p1="Sei Morgana, maga e oracolo di Camelot. Lettura "+spreadName+(q?" sulla domanda: "+q:"")+".\nCarte:\n"+lines.join("\n")+"\n\nScrivi una profezia poetica e mistica in italiano antico, in prima persona come Morgana. Evocativa e simbolica, max 90 parole. Solo il testo della profezia.";
   callAPI([{role:"user",content:p1}],null,600,function(profezia){
     profezia=profezia.trim()||"Le carte sussurrano segreti antichi...";
     document.getElementById("it").textContent=profezia;
 
     // CHIAMATA 2: Lettura chiara
-    var p2="Sei Morgana, oracolo. Lettura "+spreadName+(q?" sulla domanda: "+q:"")+".\nCarte:\n"+lines.join("\n")+"\n\nSpiega in italiano semplice e diretto cosa significano queste carte: cosa sta succedendo, cosa succedera, cosa deve fare il consultante. Max 90 parole. Solo la spiegazione.";
-    callAPI([{role:"user",content:p2}],null,600,function(lettura){
+    var p2="Sei un esperto di tarocchi. Fai una lettura professionale e dettagliata in italiano."+
+      "\nSpread: "+spreadName+(q?"\nDomanda: "+q:"")+
+      "\nCarte estratte:\n"+lines.join("\n")+
+      "\n\nAnalizza ogni posizione in questo formato preciso:"+
+      "\n\nPer ogni posizione scrivi:\n[numero]. [Nome Posizione] ([carte])\n- Analisi delle carte in quella posizione: come si influenzano, cosa rivelano\n- Cosa significa praticamente per il consultante\n"+
+      "\nAlla fine scrivi:\nSINTESI FINALE: Un paragrafo conclusivo che unisce tutte le carte e risponde alla domanda in modo chiaro e pratico."+
+      "\n\nUsa un tono professionale ma accessibile. Sii specifico e concreto. Totale max 400 parole.";
+    callAPI([{role:"user",content:p2}],null,1200,function(lettura){
       lettura=lettura.trim()||"";
       var stelle=3;
       var pos=["Il Sole","La Stella","Il Mondo","Il Mago","L'Imperatrice","Il Carro","La Forza","Gli Amanti","Il Giudizio"];
